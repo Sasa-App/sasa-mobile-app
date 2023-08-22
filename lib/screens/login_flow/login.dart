@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sasa_mobile_app/screens/feed.dart';
-import 'package:sasa_mobile_app/screens/login_flow/sign_in_create_account.dart';
+import 'package:sasa_mobile_app/screens/login_flow/sign_in.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -35,7 +35,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     print("Here");
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
-                      return const SignInCreateAccountScreen();
+                      return const SignInScreen();
                     }));
                   },
                   style: ButtonStyle(

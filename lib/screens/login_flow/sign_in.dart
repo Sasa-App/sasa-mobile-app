@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 
-class SignInCreateAccountScreen extends StatefulWidget {
-  const SignInCreateAccountScreen({super.key});
+class SignInScreen extends StatefulWidget {
+  const SignInScreen({super.key});
 
   @override
-  State<SignInCreateAccountScreen> createState() =>
-      _SignInCreateAccountScreenState();
+  State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInCreateAccountScreenState extends State<SignInCreateAccountScreen> {
+class _SignInScreenState extends State<SignInScreen> {
   bool? agreeTerms = false;
   bool? agreeNewsletters = false;
+
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
@@ -30,8 +30,13 @@ class _SignInCreateAccountScreenState extends State<SignInCreateAccountScreen> {
           ),
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
           toolbarHeight: 30,
-          bottom: const TabBar(
-            tabs: [
+          bottom: TabBar(
+            onTap: (index) {
+              // Navigator.push(context, MaterialPageRoute(builder: (context) {
+              //   return const FeedScreen();
+              // }));
+            },
+            tabs: const [
               Tab(
                 text: "Sign in",
               ),
@@ -105,7 +110,7 @@ class _SignInCreateAccountScreenState extends State<SignInCreateAccountScreen> {
                       print("Here");
                       Navigator.push(context,
                           MaterialPageRoute(builder: (context) {
-                        return const SignInCreateAccountScreen();
+                        return const SignInScreen();
                       }));
                     },
                     style: ButtonStyle(
