@@ -12,26 +12,35 @@ Widget lookingFor() {
             style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
           ),
           const Text("We'll connect you to other users with similar answers"),
-          OutlinedButton(
-            onPressed: () {},
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Colors.red),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                OutlinedButton(
+                  onPressed: () {},
+                  style: ButtonStyle(
+                    backgroundColor:
+                        MaterialStateProperty.all(Colors.pink.shade200),
+                  ),
+                  child: const Text(
+                    "Flirting 💗 ",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+                OutlinedButton(
+                  onPressed: () {},
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.grey),
+                  ),
+                  child: const Text(
+                    "Friendship 👥",
+                    style: TextStyle(color: Colors.black),
+                  ),
+                ),
+              ],
             ),
-            child: const Text(
-              "Flirting 💗 ",
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
-          OutlinedButton(
-            onPressed: () {},
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Colors.red),
-            ),
-            child: const Text(
-              "Friendship 👥",
-              style: TextStyle(color: Colors.white),
-            ),
-          ),
+          )
         ]),
   );
 }

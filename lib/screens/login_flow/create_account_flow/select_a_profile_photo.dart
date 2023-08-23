@@ -13,15 +13,29 @@ Widget selectAProfilePhoto() {
           ),
           const Text("Be sure to choose your best one!"),
           const Spacer(),
-          OutlinedButton(
-            onPressed: () {},
-            style: ButtonStyle(
-              backgroundColor: MaterialStateProperty.all(Colors.red),
-            ),
-            child: const Text(
-              "Sign in",
-              style: TextStyle(color: Colors.white),
-            ),
+          Row(
+            mainAxisSize: MainAxisSize.max,
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () {},
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.red),
+                  ),
+                  child: const Text(
+                    "Upload",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+              Container(
+                color: Colors.grey.shade100,
+                height: 35,
+                alignment: Alignment.center,
+                child: IconButton(
+                    onPressed: () {}, icon: const Icon(Icons.keyboard_control)),
+              )
+            ],
           ),
         ]),
   );

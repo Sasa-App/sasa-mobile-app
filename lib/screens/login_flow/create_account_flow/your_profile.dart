@@ -1,35 +1,47 @@
 import 'package:flutter/material.dart';
 
-Widget letsMeetTheRealYou() {
+Widget yourProfile() {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 20),
     child: Column(
         mainAxisSize: MainAxisSize.max,
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           const Text(
-            "Let's meet the real you...",
+            "Your Profile...",
             style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
           ),
-          const Text("Keep your answers as authentic as possible"),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                styledTextFormField("Describe your ideal weekend..."),
-                styledTextFormField("What's your biggest green flag?..."),
-                styledTextFormField(
-                    "If your life was a movie, which one would it be?"),
-              ],
-            ),
-          )
+          ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Image.asset("assets/images/sasa_guy.jpg"),
+          ),
+          const Text("Prince",
+              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+          const Text(
+            "🎂 21",
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+          ),
+          const Text(
+            "Ghanaian",
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+          ),
+          const Text(
+            "🎓 University of Nottingham",
+            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+          ),
+          const Divider(
+            color: Colors.red,
+            thickness: 1,
+          ),
+          styledTextFormField("Describe your ideal weekend"),
         ]),
   );
 }
 
 Widget styledTextFormField(String labelText, {Widget? suffixIcon}) {
   return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
+    crossAxisAlignment: CrossAxisAlignment.center,
     children: [
       Text(
         labelText,

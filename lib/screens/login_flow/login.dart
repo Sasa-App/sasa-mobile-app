@@ -32,7 +32,6 @@ class _LoginScreenState extends State<LoginScreen> {
               children: [
                 OutlinedButton(
                   onPressed: () {
-                    print("Here");
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
                       return const SignInScreen();

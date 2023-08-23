@@ -6,7 +6,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
     const MaterialApp(
-      home: CreateAccount(),
+      home: LoginScreen(),
     ),
   );
 }

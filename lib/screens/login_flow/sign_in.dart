@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/create_account.dart';
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -7,125 +8,139 @@ class SignInScreen extends StatefulWidget {
   State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen> {
+class _SignInScreenState extends State<SignInScreen>
+    with SingleTickerProviderStateMixin {
   bool? agreeTerms = false;
   bool? agreeNewsletters = false;
 
+  late TabController _tabController;
+
+  @override
+  void initState() {
+    super.initState();
+    _tabController = TabController(vsync: this, length: 2);
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
-    return DefaultTabController(
-      length: 2,
-      child: Scaffold(
-        resizeToAvoidBottomInset: false,
-        appBar: AppBar(
-          elevation: 0,
-          leading: InkWell(
-            onTap: () {
-              Navigator.pop(context);
-            },
-            child: const Icon(
-              Icons.close,
-              color: Colors.red,
-            ),
-          ),
-          backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-          toolbarHeight: 30,
-          bottom: TabBar(
-            onTap: (index) {
-              // Navigator.push(context, MaterialPageRoute(builder: (context) {
-              //   return const FeedScreen();
-              // }));
-            },
-            tabs: const [
-              Tab(
-                text: "Sign in",
-              ),
-              Tab(
-                text: "Create account",
-              ),
-            ],
-            indicatorColor: Colors.red,
-            labelColor: Colors.red,
-            unselectedLabelColor: Colors.grey,
-            padding: EdgeInsets.symmetric(horizontal: 20),
+    return Scaffold(
+      resizeToAvoidBottomInset: false,
+      appBar: AppBar(
+        elevation: 0,
+        leading: InkWell(
+          onTap: () {
+            Navigator.pop(context);
+          },
+          child: const Icon(
+            Icons.close,
+            color: Colors.red,
           ),
         ),
-        body: TabBarView(children: [
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-            child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Form(
-                    child: Column(
-                      children: [
-                        styledTextFormField("Email"),
-                        const SizedBox(
-                          height: 5,
-                        ),
-                        styledTextFormField("Password",
-                            suffixIcon: const Icon(Icons.remove_red_eye))
-                      ],
-                    ),
-                  ),
-                  const Spacer(),
-                  CheckboxListTile(
-                      contentPadding: EdgeInsets.zero,
-                      controlAffinity: ListTileControlAffinity.leading,
-                      title: Transform.translate(
-                        offset: const Offset(-20, 7),
-                        child: const Text(
-                          "Sasa can send me product updates and the occasional newletters",
-                          style: TextStyle(fontSize: 12),
-                          textAlign: TextAlign.start,
-                        ),
-                      ),
-                      value: agreeNewsletters,
-                      activeColor: Colors.black,
-                      onChanged: (value) {
-                        setState(() {
-                          agreeNewsletters = value;
-                        });
-                      }),
-                  CheckboxListTile(
-                      contentPadding: EdgeInsets.zero,
-                      controlAffinity: ListTileControlAffinity.leading,
-                      title: Transform.translate(
-                        offset: const Offset(-20, 7),
-                        child: const Text(
-                          "I agree to the Terms and Conditions and Privacy Policy",
-                          style: TextStyle(fontSize: 12),
-                          textAlign: TextAlign.start,
-                        ),
-                      ),
-                      value: agreeTerms,
-                      activeColor: Colors.black,
-                      onChanged: (value) {
-                        setState(() {
-                          agreeTerms = value;
-                        });
-                      }),
-                  OutlinedButton(
-                    onPressed: () {
-                      print("Here");
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) {
-                        return const SignInScreen();
-                      }));
-                    },
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Colors.red),
-                    ),
-                    child: const Text(
-                      "Continue",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ]),
-          ),
-          Placeholder(),
-        ]),
+        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
+        toolbarHeight: 30,
+        bottom: TabBar(
+          controller: _tabController,
+          onTap: (index) {
+            if (index == 1) {
+              _tabController.animateTo(0);
+              Navigator.push(context, MaterialPageRoute(builder: (context) {
+                return const CreateAccount();
+              }));
+            }
+          },
+          tabs: const [
+            Tab(
+              text: "Sign in",
+            ),
+            Tab(
+              text: "Create account",
+            ),
+          ],
+          indicatorColor: Colors.red,
+          labelColor: Colors.red,
+          unselectedLabelColor: Colors.grey,
+          padding: EdgeInsets.symmetric(horizontal: 20),
+        ),
       ),
+      body: TabBarView(controller: _tabController, children: [
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
+          child:
+              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+            Form(
+              child: Column(
+                children: [
+                  styledTextFormField("Email"),
+                  const SizedBox(
+                    height: 5,
+                  ),
+                  styledTextFormField("Password",
+                      suffixIcon: const Icon(Icons.remove_red_eye))
+                ],
+              ),
+            ),
+            const Spacer(),
+            CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                title: Transform.translate(
+                  offset: const Offset(-20, 7),
+                  child: const Text(
+                    "Sasa can send me product updates and the occasional newletters",
+                    style: TextStyle(fontSize: 12),
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+                value: agreeNewsletters,
+                activeColor: Colors.black,
+                onChanged: (value) {
+                  setState(() {
+                    agreeNewsletters = value;
+                  });
+                }),
+            CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                controlAffinity: ListTileControlAffinity.leading,
+                title: Transform.translate(
+                  offset: const Offset(-20, 7),
+                  child: const Text(
+                    "I agree to the Terms and Conditions and Privacy Policy",
+                    style: TextStyle(fontSize: 12),
+                    textAlign: TextAlign.start,
+                  ),
+                ),
+                value: agreeTerms,
+                activeColor: Colors.black,
+                onChanged: (value) {
+                  setState(() {
+                    agreeTerms = value;
+                  });
+                }),
+            OutlinedButton(
+              onPressed: () {
+                print("Here");
+                Navigator.push(context, MaterialPageRoute(builder: (context) {
+                  return const SignInScreen();
+                }));
+              },
+              style: ButtonStyle(
+                backgroundColor: MaterialStateProperty.all(Colors.red),
+              ),
+              child: const Text(
+                "Continue",
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ]),
+        ),
+        Placeholder(),
+      ]),
     );
   }
 }

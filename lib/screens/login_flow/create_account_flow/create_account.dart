@@ -7,6 +7,7 @@ import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/lets_meet
 import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/looking_for.dart';
 import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/security_verification.dart';
 import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/select_a_profile_photo.dart';
+import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/your_profile.dart';
 
 class CreateAccount extends StatefulWidget {
   const CreateAccount({super.key});
@@ -16,15 +17,18 @@ class CreateAccount extends StatefulWidget {
 }
 
 class _CreateAccountState extends State<CreateAccount> {
-  final items = [
+  final screens = [
     createYourProfile(),
     securityVerification(),
     selectAProfilePhoto(),
     lookingFor(),
-    letsMeetTheRealYou()
+    letsMeetTheRealYou(),
+    yourProfile()
   ];
 
   int currentIndex = 0;
+
+  bool isVisible = false;
 
   @override
   Widget build(BuildContext context) {
@@ -47,7 +51,7 @@ class _CreateAccountState extends State<CreateAccount> {
         children: [
           Expanded(
             child: CarouselSlider(
-              items: items,
+              items: screens,
               options: CarouselOptions(
                 enableInfiniteScroll: false,
                 height: double.infinity,
@@ -55,16 +59,38 @@ class _CreateAccountState extends State<CreateAccount> {
                 onPageChanged: (index, reason) => {
                   setState(() {
                     currentIndex = index;
+                    if (currentIndex == 5) {
+                      isVisible = true;
+                    } else {
+                      isVisible = false;
+                    }
                   })
                 },
               ),
             ),
           ),
           DotsIndicator(
-            dotsCount: items.length,
+            dotsCount: screens.length,
             position: currentIndex,
-          )
+            decorator: const DotsDecorator(activeColor: Colors.red),
+          ),
+          const SizedBox(
+            height: 50,
+          ),
         ],
+      ),
+      floatingActionButton: Visibility(
+        visible: isVisible,
+        child: FloatingActionButton(
+          onPressed: () {
+            Navigator.push(context, MaterialPageRoute(builder: (context) {
+              return const FeedScreen();
+            }));
+          },
+          mini: true,
+          backgroundColor: Colors.red,
+          child: const Icon(Icons.person_add_outlined),
+        ),
       ),
     );
   }
