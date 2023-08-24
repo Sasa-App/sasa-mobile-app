@@ -10,10 +10,25 @@ class SignInScreen extends StatefulWidget {
 
 class _SignInScreenState extends State<SignInScreen>
     with SingleTickerProviderStateMixin {
+  var enteredEmail = "";
+  var enteredPassword = "";
+
   bool? agreeTerms = false;
   bool? agreeNewsletters = false;
 
   late TabController _tabController;
+
+  final formKey = GlobalKey<FormState>();
+
+  void submit() {
+    final isValid = formKey.currentState!.validate();
+
+    if (isValid) {
+      formKey.currentState!.save();
+      print(enteredEmail);
+      print(enteredPassword);
+    }
+  }
 
   @override
   void initState() {
@@ -43,7 +58,6 @@ class _SignInScreenState extends State<SignInScreen>
           ),
         ),
         backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        toolbarHeight: 30,
         bottom: TabBar(
           controller: _tabController,
           onTap: (index) {
@@ -65,7 +79,7 @@ class _SignInScreenState extends State<SignInScreen>
           indicatorColor: Colors.red,
           labelColor: Colors.red,
           unselectedLabelColor: Colors.grey,
-          padding: EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 20),
         ),
       ),
       body: TabBarView(controller: _tabController, children: [
@@ -74,14 +88,28 @@ class _SignInScreenState extends State<SignInScreen>
           child:
               Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
             Form(
+              key: formKey,
               child: Column(
                 children: [
-                  styledTextFormField("Email"),
+                  styledTextFormField(
+                    "Email",
+                    keyboardType: TextInputType.emailAddress,
+                    obscureText: false,
+                    onSaved: (value) {
+                      enteredEmail = value!;
+                    },
+                  ),
                   const SizedBox(
                     height: 5,
                   ),
-                  styledTextFormField("Password",
-                      suffixIcon: const Icon(Icons.remove_red_eye))
+                  styledTextFormField(
+                    "Password",
+                    suffixIcon: const Icon(Icons.remove_red_eye),
+                    obscureText: true,
+                    onSaved: (value) {
+                      enteredPassword = value!;
+                    },
+                  )
                 ],
               ),
             ),
@@ -124,10 +152,7 @@ class _SignInScreenState extends State<SignInScreen>
                 }),
             OutlinedButton(
               onPressed: () {
-                print("Here");
-                Navigator.push(context, MaterialPageRoute(builder: (context) {
-                  return const SignInScreen();
-                }));
+                submit();
               },
               style: ButtonStyle(
                 backgroundColor: MaterialStateProperty.all(Colors.red),
@@ -145,8 +170,24 @@ class _SignInScreenState extends State<SignInScreen>
   }
 }
 
-Widget styledTextFormField(String labelText, {Widget? suffixIcon}) {
+Widget styledTextFormField(String labelText,
+    {Widget? suffixIcon,
+    TextInputType? keyboardType,
+    required bool obscureText,
+    required void Function(String?)? onSaved}) {
   return TextFormField(
+    keyboardType: keyboardType,
+    autocorrect: false,
+    textCapitalization: TextCapitalization.none,
+    obscureText: obscureText,
+    validator: (value) {
+      if (value == "") {
+        return "Please enter a valid input";
+      }
+
+      return null;
+    },
+    onSaved: onSaved,
     decoration: InputDecoration(
       labelText: labelText,
       filled: true,

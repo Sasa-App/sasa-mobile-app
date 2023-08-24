@@ -71,14 +71,6 @@ class _LoginScreenState extends State<LoginScreen> {
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return const FeedScreen();
-          }));
-        },
-        child: const Icon(Icons.arrow_circle_right_sharp),
-      ),
     );
   }
 }

@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
-import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/create_account.dart';
 import 'package:sasa_mobile_app/screens/login_flow/login.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   runApp(
     const MaterialApp(
       home: LoginScreen(),
