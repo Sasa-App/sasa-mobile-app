@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:sasa_mobile_app/screens/feed.dart';
 import 'package:sasa_mobile_app/screens/login_flow/sign_in.dart';
+import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/create_account.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -49,7 +49,12 @@ class _LoginScreenState extends State<LoginScreen> {
                   height: 20,
                 ),
                 InkWell(
-                  onTap: () {},
+                  onTap: () {
+                    Navigator.push(context,
+                        MaterialPageRoute(builder: (context) {
+                      return const CreateAccount();
+                    }));
+                  },
                   child: const Column(
                     children: [
                       Text("Don't have an acount?"),

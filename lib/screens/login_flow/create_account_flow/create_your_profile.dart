@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
-Widget createYourProfile() {
+Widget createYourProfile(GlobalKey formKey, String enteredName,
+    String enteredAge, String enteredNationality, String enteredUniversity) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 20),
     child: Column(
@@ -13,11 +14,13 @@ Widget createYourProfile() {
           ),
           const Text("You can modify these later."),
           Form(
+            key: formKey,
             child: Expanded(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   TextFormField(
+                    initialValue: enteredName,
                     style: const TextStyle(fontSize: 25, color: Colors.red),
                     decoration: const InputDecoration(
                       labelText: "Name",
@@ -28,6 +31,9 @@ Widget createYourProfile() {
                       floatingLabelBehavior: FloatingLabelBehavior.always,
                       contentPadding: EdgeInsets.fromLTRB(0, 10, 0, 0),
                     ),
+                    onChanged: (value) {
+                      enteredName = value;
+                    },
                   ),
                   TextFormField(
                     style: const TextStyle(fontSize: 25, color: Colors.red),

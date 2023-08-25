@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sasa_mobile_app/screens/profile.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class FeedScreen extends StatefulWidget {
   const FeedScreen({super.key});
@@ -17,11 +17,13 @@ class _FeedScreenState extends State<FeedScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          Navigator.push(context, MaterialPageRoute(builder: (context) {
-            return const Profile();
-          }));
+          FirebaseAuth.instance.signOut();
+
+          //Navigator.push(context, MaterialPageRoute(builder: (context) {
+          //  return const Profile();
+          //}));
         },
-        child: const Icon(Icons.arrow_circle_right_sharp),
+        child: const Icon(Icons.exit_to_app),
       ),
     );
   }

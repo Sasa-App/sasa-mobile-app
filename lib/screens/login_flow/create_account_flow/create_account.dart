@@ -8,6 +8,11 @@ import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/looking_f
 import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/security_verification.dart';
 import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/select_a_profile_photo.dart';
 import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/your_profile.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import 'dart:io';
+
+final firebase = FirebaseAuth.instance;
 
 class CreateAccount extends StatefulWidget {
   const CreateAccount({super.key});
@@ -17,21 +22,54 @@ class CreateAccount extends StatefulWidget {
 }
 
 class _CreateAccountState extends State<CreateAccount> {
-  final screens = [
-    createYourProfile(),
-    securityVerification(),
-    selectAProfilePhoto(),
-    lookingFor(),
-    letsMeetTheRealYou(),
-    yourProfile()
-  ];
+  var enteredName = "";
+  var enteredAge = "";
+  var enteredNationality = "";
+  var enteredUniversity = "";
+  var enteredEmail = "";
+  var enteredPassword = "";
 
   int currentIndex = 0;
 
   bool isVisible = false;
 
+  final formKey = GlobalKey<FormState>();
+
+  void submit() async {
+    final isValid = formKey.currentState!.validate();
+
+    if (!isValid) {
+      return;
+    }
+
+    formKey.currentState!.save();
+
+    try {
+      final userCredentials = await firebase.createUserWithEmailAndPassword(
+          email: enteredEmail, password: enteredPassword);
+    } on FirebaseAuthException catch (error) {
+      if (error.code == 'email-already-in-use') {}
+      ScaffoldMessenger.of(context).clearSnackBars();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.message ?? 'Authentication failed.'),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final screens = [
+      createYourProfile(formKey, enteredName, enteredAge, enteredNationality,
+          enteredUniversity),
+      securityVerification(enteredUniversity, enteredEmail),
+      selectAProfilePhoto(),
+      lookingFor(),
+      letsMeetTheRealYou(),
+      yourProfile()
+    ];
+
     return Scaffold(
       resizeToAvoidBottomInset: false,
       appBar: AppBar(
@@ -56,15 +94,18 @@ class _CreateAccountState extends State<CreateAccount> {
                 enableInfiniteScroll: false,
                 height: double.infinity,
                 viewportFraction: 1,
-                onPageChanged: (index, reason) => {
+                onPageChanged: (index, reason) {
                   setState(() {
+                    //enteredName = "Busayo";
+                    enteredName = enteredName;
                     currentIndex = index;
                     if (currentIndex == 5) {
                       isVisible = true;
                     } else {
                       isVisible = false;
                     }
-                  })
+                  });
+                  //formKey.currentState!.reset();
                 },
               ),
             ),
@@ -83,6 +124,7 @@ class _CreateAccountState extends State<CreateAccount> {
         visible: isVisible,
         child: FloatingActionButton(
           onPressed: () {
+            submit();
             Navigator.push(context, MaterialPageRoute(builder: (context) {
               return const FeedScreen();
             }));

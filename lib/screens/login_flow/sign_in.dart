@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/create_account.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+final firebase = FirebaseAuth.instance;
 
 class SignInScreen extends StatefulWidget {
   const SignInScreen({super.key});
@@ -15,19 +18,38 @@ class _SignInScreenState extends State<SignInScreen>
 
   bool? agreeTerms = false;
   bool? agreeNewsletters = false;
+  bool obscureText = true;
 
   late TabController _tabController;
 
   final formKey = GlobalKey<FormState>();
 
-  void submit() {
+  void submit() async {
     final isValid = formKey.currentState!.validate();
 
-    if (isValid) {
-      formKey.currentState!.save();
-      print(enteredEmail);
-      print(enteredPassword);
+    if (!isValid) {
+      return;
     }
+
+    formKey.currentState!.save();
+
+    try {
+      final userCredentials = await firebase.signInWithEmailAndPassword(
+          email: enteredEmail, password: enteredPassword);
+    } on FirebaseAuthException catch (error) {
+      if (error.code == 'email-already-in-use') {}
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).clearSnackBars();
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(error.message ?? 'Authentication failed.'),
+          ),
+        );
+      }
+
+      return;
+    }
+    if (context.mounted) Navigator.pop(context);
   }
 
   @override
@@ -104,8 +126,15 @@ class _SignInScreenState extends State<SignInScreen>
                   ),
                   styledTextFormField(
                     "Password",
-                    suffixIcon: const Icon(Icons.remove_red_eye),
-                    obscureText: true,
+                    suffixIcon: IconButton(
+                      icon: const Icon(Icons.remove_red_eye),
+                      onPressed: () {
+                        setState(() {
+                          obscureText = !obscureText;
+                        });
+                      },
+                    ),
+                    obscureText: obscureText,
                     onSaved: (value) {
                       enteredPassword = value!;
                     },
