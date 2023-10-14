@@ -9,8 +9,9 @@ import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/security_
 import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/select_a_profile_photo.dart';
 import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/your_profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sasa_mobile_app/models/profile_details.dart';
 
-import 'dart:io';
+import 'package:sasa_mobile_app/providers.dart';
 
 final firebase = FirebaseAuth.instance;
 
@@ -22,13 +23,6 @@ class CreateAccount extends StatefulWidget {
 }
 
 class _CreateAccountState extends State<CreateAccount> {
-  var enteredName = "";
-  var enteredAge = "";
-  var enteredNationality = "";
-  var enteredUniversity = "";
-  var enteredEmail = "";
-  var enteredPassword = "";
-
   int currentIndex = 0;
 
   bool isVisible = false;
@@ -46,7 +40,7 @@ class _CreateAccountState extends State<CreateAccount> {
 
     try {
       final userCredentials = await firebase.createUserWithEmailAndPassword(
-          email: enteredEmail, password: enteredPassword);
+          email: newUser.enteredEmail, password: newUser.enteredPassword);
     } on FirebaseAuthException catch (error) {
       if (error.code == 'email-already-in-use') {}
       ScaffoldMessenger.of(context).clearSnackBars();
@@ -61,17 +55,17 @@ class _CreateAccountState extends State<CreateAccount> {
   @override
   Widget build(BuildContext context) {
     final screens = [
-      createYourProfile(formKey, enteredName, enteredAge, enteredNationality,
-          enteredUniversity),
-      securityVerification(enteredUniversity, enteredEmail),
-      selectAProfilePhoto(),
-      lookingFor(),
-      letsMeetTheRealYou(),
-      yourProfile()
+      CreateYourProfile(newUser.enteredName, newUser.enteredAge,
+          newUser.enteredNationality, newUser.enteredUniversity),
+      SecurityVerification(newUser.enteredEmail, newUser.enteredPassword),
+      SelectAProfilePhoto(),
+      LookingFor(),
+      LetsMeetTheRealYou(),
+      YourProfile(),
     ];
 
     return Scaffold(
-      resizeToAvoidBottomInset: false,
+      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         elevation: 0,
         leading: InkWell(
@@ -97,7 +91,7 @@ class _CreateAccountState extends State<CreateAccount> {
                 onPageChanged: (index, reason) {
                   setState(() {
                     //enteredName = "Busayo";
-                    enteredName = enteredName;
+                    //enteredName = enteredName;
                     currentIndex = index;
                     if (currentIndex == 5) {
                       isVisible = true;
