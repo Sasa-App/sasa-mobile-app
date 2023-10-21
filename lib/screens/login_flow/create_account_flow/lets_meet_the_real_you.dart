@@ -37,35 +37,6 @@ class _LetsMeetTheRealYouState extends State<LetsMeetTheRealYou> {
   }
 }
 
-/*
-Widget letsMeetTheRealYou() {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 20),
-    child: Column(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Let's meet the real you...",
-            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-          ),
-          const Text("Keep your answers as authentic as possible"),
-          Expanded(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                styledTextFormField("Describe your ideal weekend..."),
-                styledTextFormField("What's your biggest green flag?..."),
-                styledTextFormField(
-                    "If your life was a movie, which one would it be?"),
-              ],
-            ),
-          )
-        ]),
-  );
-}
-*/
-
 Widget styledTextFormField(String labelText, {Widget? suffixIcon}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,

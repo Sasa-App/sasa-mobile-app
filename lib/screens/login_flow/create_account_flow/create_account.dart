@@ -9,8 +9,6 @@ import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/security_
 import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/select_a_profile_photo.dart';
 import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/your_profile.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:sasa_mobile_app/models/profile_details.dart';
-
 import 'package:sasa_mobile_app/providers.dart';
 
 final firebase = FirebaseAuth.instance;
@@ -65,7 +63,6 @@ class _CreateAccountState extends State<CreateAccount> {
     ];
 
     return Scaffold(
-      resizeToAvoidBottomInset: true,
       appBar: AppBar(
         elevation: 0,
         leading: InkWell(
@@ -90,8 +87,6 @@ class _CreateAccountState extends State<CreateAccount> {
                 viewportFraction: 1,
                 onPageChanged: (index, reason) {
                   setState(() {
-                    //enteredName = "Busayo";
-                    //enteredName = enteredName;
                     currentIndex = index;
                     if (currentIndex == 5) {
                       isVisible = true;
@@ -99,7 +94,6 @@ class _CreateAccountState extends State<CreateAccount> {
                       isVisible = false;
                     }
                   });
-                  //formKey.currentState!.reset();
                 },
               ),
             ),

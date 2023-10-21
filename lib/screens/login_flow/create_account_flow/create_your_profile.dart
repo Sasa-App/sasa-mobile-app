@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sasa_mobile_app/data/universities.dart';
 import 'package:sasa_mobile_app/providers.dart';
 import 'package:country_picker/country_picker.dart';
+import 'package:select_dialog/select_dialog.dart';
 
 class CreateYourProfile extends ConsumerWidget {
   CreateYourProfile(this.enteredName, this.enteredAge, this.enteredNationality,
@@ -14,10 +15,13 @@ class CreateYourProfile extends ConsumerWidget {
   String enteredAge;
   String enteredNationality;
   String enteredUniversity;
-  var nationality = TextEditingController();
+  var nationalityController = TextEditingController();
+  var universityController = TextEditingController();
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    nationalityController.text = ref.watch(nationalityProvider);
+    universityController.text = ref.watch(universityProvider);
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -72,7 +76,7 @@ class CreateYourProfile extends ConsumerWidget {
                     TextFormField(
                       style: const TextStyle(fontSize: 25, color: Colors.red),
                       readOnly: true,
-                      controller: nationality,
+                      controller: nationalityController,
                       decoration: const InputDecoration(
                         labelText: "Nationality",
                         labelStyle: TextStyle(
@@ -84,6 +88,7 @@ class CreateYourProfile extends ConsumerWidget {
                       ),
                       onTap: () {
                         showCountryPicker(
+                            countryListTheme: CountryListThemeData(),
                             context: context,
                             countryFilter: <String>[
                               'DZ',
@@ -145,7 +150,7 @@ class CreateYourProfile extends ConsumerWidget {
                               'ZW',
                             ],
                             onSelect: (Country country) {
-                              nationality.text =
+                              nationalityController.text =
                                   "${country.flagEmoji} ${country.name}";
                               ref.read(nationalityProvider.notifier).state =
                                   "${country.flagEmoji} ${country.name}";
@@ -156,8 +161,8 @@ class CreateYourProfile extends ConsumerWidget {
                       },
                     ),
                     TextFormField(
-                        initialValue:
-                            ref.read(universityProvider.notifier).state,
+                        readOnly: true,
+                        controller: universityController,
                         style: const TextStyle(fontSize: 25, color: Colors.red),
                         decoration: const InputDecoration(
                           labelText: "University",
@@ -169,16 +174,13 @@ class CreateYourProfile extends ConsumerWidget {
                           contentPadding: EdgeInsets.fromLTRB(0, 10, 0, 0),
                         ),
                         onTap: () {
-                          //TODO: Make the list of universities selectable
-                          showDialog(
-                              context: context,
-                              builder: (context) => Dialog(
-                                    child: ListView(
-                                        children: universities.keys
-                                            .map((value) =>
-                                                ListTile(title: Text(value)))
-                                            .toList()),
-                                  ));
+                          SelectDialog.showModal(context,
+                              label: "Select your University",
+                              items: universities.keys.toList(),
+                              onChange: (value) {
+                            universityController.text = value;
+                            ref.read(universityProvider.notifier).state = value;
+                          });
                         },
                         onChanged: (value) {
                           ref.read(universityProvider.notifier).state = value;
@@ -194,84 +196,3 @@ class CreateYourProfile extends ConsumerWidget {
   @override
   bool get wantKeepAlive => true;
 }
-
-/** 
-Widget createYourProfile(GlobalKey formKey, String enteredName,
-    String enteredAge, String enteredNationality, String enteredUniversity) {
-  return Padding(
-    padding: const EdgeInsets.symmetric(horizontal: 20),
-    child: Column(
-        mainAxisSize: MainAxisSize.max,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            "Create your profile",
-            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-          ),
-          const Text("You can modify these later."),
-          Form(
-            key: formKey,
-            child: Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  TextFormField(
-                    initialValue: enteredName,
-                    style: const TextStyle(fontSize: 25, color: Colors.red),
-                    decoration: const InputDecoration(
-                      labelText: "Name",
-                      labelStyle: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25),
-                      floatingLabelBehavior: FloatingLabelBehavior.always,
-                      contentPadding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                    ),
-                    onChanged: (value) {
-                      enteredName = value;
-                    },
-                  ),
-                  TextFormField(
-                    style: const TextStyle(fontSize: 25, color: Colors.red),
-                    decoration: const InputDecoration(
-                      labelText: "Age",
-                      labelStyle: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25),
-                      floatingLabelBehavior: FloatingLabelBehavior.always,
-                      contentPadding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                    ),
-                  ),
-                  TextFormField(
-                    style: const TextStyle(fontSize: 25, color: Colors.red),
-                    decoration: const InputDecoration(
-                      labelText: "Nationality",
-                      labelStyle: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25),
-                      floatingLabelBehavior: FloatingLabelBehavior.always,
-                      contentPadding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                    ),
-                  ),
-                  TextFormField(
-                    style: const TextStyle(fontSize: 25, color: Colors.red),
-                    decoration: const InputDecoration(
-                      labelText: "University",
-                      labelStyle: TextStyle(
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 25),
-                      floatingLabelBehavior: FloatingLabelBehavior.always,
-                      contentPadding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ]),
-  );
-}
-*/

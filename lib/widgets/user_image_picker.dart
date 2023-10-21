@@ -3,7 +3,11 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 
 class UserImagePicker extends StatefulWidget {
-  const UserImagePicker({super.key});
+  UserImagePicker({super.key, required initialPhoto, update});
+
+  Widget? initialPhoto;
+  //TODO: make user image picker resusable, either make it a consumerwidget or find another way
+  void Function()? update;
 
   @override
   State<UserImagePicker> createState() => _UserImagePickerState();
@@ -12,16 +16,52 @@ class UserImagePicker extends StatefulWidget {
 class _UserImagePickerState extends State<UserImagePicker> {
   File? pickedImageFile;
 
-  void pickImage() async {
-    final pickedImage = await ImagePicker().pickImage(
-        source: ImageSource.gallery, maxWidth: 150, imageQuality: 50);
+  void pick() async {
+    XFile? pickedImage;
 
-    if (pickedImage == null) {
-      return;
-    }
+    showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            content: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextButton(
+                    onPressed: () async {
+                      pickedImage = await ImagePicker().pickImage(
+                          source: ImageSource.gallery,
+                          maxWidth: 150,
+                          imageQuality: 50);
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      "Photo Library",
+                      style: TextStyle(color: Colors.black),
+                    )),
+                TextButton(
+                    onPressed: () async {
+                      pickedImage = await ImagePicker().pickImage(
+                          source: ImageSource.camera,
+                          preferredCameraDevice: CameraDevice.front);
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      "Take photo",
+                      style: TextStyle(color: Colors.black),
+                    )),
+              ],
+            ),
+          );
+        }).then((value) {
+      if (pickedImage == null) {
+        return;
+      }
 
-    setState(() {
-      pickedImageFile = File(pickedImage.path);
+      setState(() {
+        pickedImageFile = File(pickedImage!.path);
+        widget.update;
+      });
     });
   }
 
@@ -41,7 +81,7 @@ class _UserImagePickerState extends State<UserImagePicker> {
                       image: FileImage(pickedImageFile!),
                       fit: BoxFit.fill,
                     )
-                  : null,
+                  : widget.initialPhoto,
             ),
           ),
           Row(
@@ -64,7 +104,7 @@ class _UserImagePickerState extends State<UserImagePicker> {
                 height: 35,
                 alignment: Alignment.center,
                 child: IconButton(
-                  onPressed: pickImage,
+                  onPressed: pick,
                   icon: const Icon(Icons.keyboard_control),
                 ),
               )
