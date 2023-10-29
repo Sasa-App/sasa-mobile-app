@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:sasa_mobile_app/providers.dart';
 
-class LetsMeetTheRealYou extends StatefulWidget {
+class LetsMeetTheRealYou extends ConsumerWidget {
   const LetsMeetTheRealYou({super.key});
 
   @override
-  State<LetsMeetTheRealYou> createState() => _LetsMeetTheRealYouState();
-}
-
-class _LetsMeetTheRealYouState extends State<LetsMeetTheRealYou> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -21,15 +18,27 @@ class _LetsMeetTheRealYouState extends State<LetsMeetTheRealYou> {
               style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
             ),
             const Text("Keep your answers as authentic as possible"),
-            Expanded(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  styledTextFormField("Describe your ideal weekend..."),
-                  styledTextFormField("What's your biggest green flag?..."),
-                  styledTextFormField(
-                      "If your life was a movie, which one would it be?"),
-                ],
+            Form(
+              key: form5Key,
+              child: Expanded(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                  children: [
+                    styledTextFormField(
+                        labelText: "Describe your ideal weekend...",
+                        ref: ref,
+                        inputTextProvider: idealWeekendProvider),
+                    styledTextFormField(
+                        labelText: "What's your biggest green flag?...",
+                        ref: ref,
+                        inputTextProvider: greenFlagsProvider),
+                    styledTextFormField(
+                        labelText:
+                            "If your life was a movie, which one would it be?",
+                        ref: ref,
+                        inputTextProvider: lifeMovieProvider),
+                  ],
+                ),
               ),
             )
           ]),
@@ -37,7 +46,11 @@ class _LetsMeetTheRealYouState extends State<LetsMeetTheRealYou> {
   }
 }
 
-Widget styledTextFormField(String labelText, {Widget? suffixIcon}) {
+Widget styledTextFormField(
+    {required String labelText,
+    required WidgetRef ref,
+    required StateProvider<String> inputTextProvider,
+    Widget? suffixIcon}) {
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
@@ -46,19 +59,33 @@ Widget styledTextFormField(String labelText, {Widget? suffixIcon}) {
         style: const TextStyle(
             color: Colors.black, fontWeight: FontWeight.bold, fontSize: 20),
       ),
+      const SizedBox(
+        height: 10,
+      ),
       TextFormField(
+        maxLines: 4,
+        initialValue: ref.watch(inputTextProvider),
         decoration: InputDecoration(
           filled: true,
           fillColor: Colors.grey.shade200,
-          enabledBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.transparent),
-          ),
-          focusedBorder: const OutlineInputBorder(
-            borderSide: BorderSide(color: Colors.transparent),
-          ),
-          contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+          enabledBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: Colors.transparent),
+              borderRadius: BorderRadius.circular(10)),
+          focusedBorder: OutlineInputBorder(
+              borderSide: const BorderSide(color: Colors.transparent),
+              borderRadius: BorderRadius.circular(10)),
+          contentPadding: const EdgeInsets.all(12),
           suffixIcon: suffixIcon,
         ),
+        onChanged: (value) {
+          ref.read(inputTextProvider.notifier).state = value;
+        },
+        validator: (value) {
+          if (value == null || value.trim().isEmpty) {
+            return "Please enter a valid response";
+          }
+          return null;
+        },
       ),
     ],
   );

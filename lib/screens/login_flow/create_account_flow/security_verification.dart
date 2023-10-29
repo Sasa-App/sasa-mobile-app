@@ -25,6 +25,7 @@ class SecurityVerification extends ConsumerWidget {
             ),
             const Text("We need these details to confirm your identity."),
             Form(
+              key: form2Key,
               child: Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -45,6 +46,7 @@ class SecurityVerification extends ConsumerWidget {
                       ),
                     ),
                     TextFormField(
+                      initialValue: ref.read(emailProvider.notifier).state,
                       style: const TextStyle(fontSize: 25, color: Colors.red),
                       decoration: InputDecoration(
                         labelText: "University email",
@@ -56,6 +58,18 @@ class SecurityVerification extends ConsumerWidget {
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                         contentPadding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                       ),
+                      validator: (value) {
+                        if (value == null ||
+                            value.trim().isEmpty ||
+                            value.contains("@")) {
+                          return "Please enter a valid student email";
+                        }
+                        return null;
+                      },
+                      onChanged: (value) {
+                        ref.read(emailProvider.notifier).state = value.trim();
+                        print(ref.read(emailProvider.notifier).state);
+                      },
                     ),
                     Column(
                       children: [
@@ -80,6 +94,7 @@ class SecurityVerification extends ConsumerWidget {
                         StatefulBuilder(builder: (context, setState) {
                           return TextFormField(
                             //inputFormatters: [maskFormatter],
+                            initialValue: ref.watch(passwordProvider),
                             obscureText: obscureText,
                             style: const TextStyle(
                                 fontSize: 20, color: Colors.black),
@@ -103,6 +118,15 @@ class SecurityVerification extends ConsumerWidget {
                                 },
                               ),
                             ),
+                            validator: (value) {
+                              if (value == null || value.trim().isEmpty) {
+                                return "Please enter a valid password";
+                              }
+                              return null;
+                            },
+                            onChanged: (value) {
+                              ref.read(passwordProvider.notifier).state = value;
+                            },
                           );
                         }),
                       ],

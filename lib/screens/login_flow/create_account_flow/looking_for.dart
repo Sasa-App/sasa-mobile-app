@@ -1,30 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:sasa_mobile_app/models/profile_details.dart';
+import 'package:sasa_mobile_app/providers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LookingFor extends StatefulWidget {
-  const LookingFor({super.key});
-
-  @override
-  State<LookingFor> createState() => _LookingForState();
-}
-
-class _LookingForState extends State<LookingFor>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
+class LookingFor extends ConsumerWidget {
+  LookingFor({super.key});
 
   @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(vsync: this);
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -37,33 +20,59 @@ class _LookingForState extends State<LookingFor>
             ),
             const Text("We'll connect you to other users with similar answers"),
             Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  OutlinedButton(
-                    onPressed: () {},
-                    style: ButtonStyle(
-                      backgroundColor:
-                          MaterialStateProperty.all(Colors.pink.shade200),
+              child: StatefulBuilder(builder: (context, setState) {
+                Color isFlirtingColor =
+                    ref.read(looking4Provider.notifier).state ==
+                            Looking4.flirting
+                        ? Colors.red
+                        : Colors.transparent;
+                Color isFriendshipColor =
+                    ref.read(looking4Provider.notifier).state ==
+                            Looking4.frienship
+                        ? Colors.red
+                        : Colors.transparent;
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    OutlinedButton(
+                      onPressed: () {
+                        setState(() {
+                          ref.read(looking4Provider.notifier).state =
+                              Looking4.flirting;
+                        });
+                      },
+                      style: ButtonStyle(
+                        side: MaterialStateProperty.all(
+                            BorderSide(color: isFlirtingColor, width: 3)),
+                        backgroundColor:
+                            MaterialStateProperty.all(Colors.pink.shade200),
+                      ),
+                      child: const Text(
+                        "Flirting 💗 ",
+                        style: TextStyle(color: Colors.black),
+                      ),
                     ),
-                    child: const Text(
-                      "Flirting 💗 ",
-                      style: TextStyle(color: Colors.black),
+                    OutlinedButton(
+                      onPressed: () {
+                        setState(() {
+                          ref.read(looking4Provider.notifier).state =
+                              Looking4.frienship;
+                        });
+                      },
+                      style: ButtonStyle(
+                        side: MaterialStateProperty.all(
+                            BorderSide(color: isFriendshipColor, width: 3)),
+                        backgroundColor: MaterialStateProperty.all(Colors.grey),
+                      ),
+                      child: const Text(
+                        "Friendship 👥",
+                        style: TextStyle(color: Colors.black),
+                      ),
                     ),
-                  ),
-                  OutlinedButton(
-                    onPressed: () {},
-                    style: ButtonStyle(
-                      backgroundColor: MaterialStateProperty.all(Colors.grey),
-                    ),
-                    child: const Text(
-                      "Friendship 👥",
-                      style: TextStyle(color: Colors.black),
-                    ),
-                  ),
-                ],
-              ),
+                  ],
+                );
+              }),
             )
           ]),
     );

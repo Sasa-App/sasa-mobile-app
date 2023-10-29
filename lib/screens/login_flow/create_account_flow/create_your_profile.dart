@@ -34,12 +34,13 @@ class CreateYourProfile extends ConsumerWidget {
             ),
             const Text("You can modify these later."),
             Form(
+              key: form1Key,
               child: Expanded(
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     TextFormField(
-                      initialValue: ref.read(nameProvider.notifier).state,
+                      initialValue: ref.watch(nameProvider),
                       enabled: true,
                       style: const TextStyle(fontSize: 25, color: Colors.red),
                       decoration: const InputDecoration(
@@ -51,12 +52,18 @@ class CreateYourProfile extends ConsumerWidget {
                         floatingLabelBehavior: FloatingLabelBehavior.always,
                         contentPadding: EdgeInsets.fromLTRB(0, 10, 0, 0),
                       ),
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Please enter a valid name";
+                        }
+                        return null;
+                      },
                       onChanged: (value) {
-                        ref.read(nameProvider.notifier).state = value;
+                        ref.read(nameProvider.notifier).state = value.trim();
                       },
                     ),
                     TextFormField(
-                      initialValue: ref.read(ageProvider.notifier).state,
+                      initialValue: ref.watch(ageProvider),
                       keyboardType: TextInputType.number,
                       inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                       style: const TextStyle(fontSize: 25, color: Colors.red),
@@ -70,7 +77,16 @@ class CreateYourProfile extends ConsumerWidget {
                         contentPadding: EdgeInsets.fromLTRB(0, 10, 0, 0),
                       ),
                       onChanged: (value) {
-                        ref.read(ageProvider.notifier).state = value;
+                        ref.read(ageProvider.notifier).state = value.trim();
+                      },
+                      validator: (value) {
+                        if (value == null ||
+                            value.trim().isEmpty ||
+                            int.parse(value) < 17 ||
+                            int.parse(value) > 30) {
+                          return "Please enter a valid age";
+                        }
+                        return null;
                       },
                     ),
                     TextFormField(
@@ -159,32 +175,46 @@ class CreateYourProfile extends ConsumerWidget {
                       onChanged: (value) {
                         ref.read(nationalityProvider.notifier).state = value;
                       },
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Please select your nationality";
+                        }
+                        return null;
+                      },
                     ),
                     TextFormField(
-                        readOnly: true,
-                        controller: universityController,
-                        style: const TextStyle(fontSize: 25, color: Colors.red),
-                        decoration: const InputDecoration(
-                          labelText: "University",
-                          labelStyle: TextStyle(
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
-                              fontSize: 25),
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                          contentPadding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                        ),
-                        onTap: () {
-                          SelectDialog.showModal(context,
-                              label: "Select your University",
-                              items: universities.keys.toList(),
-                              onChange: (value) {
-                            universityController.text = value;
-                            ref.read(universityProvider.notifier).state = value;
-                          });
-                        },
-                        onChanged: (value) {
-                          ref.read(universityProvider.notifier).state = value;
-                        }),
+                      readOnly: true,
+                      controller: universityController,
+                      style: const TextStyle(fontSize: 25, color: Colors.red),
+                      decoration: const InputDecoration(
+                        labelText: "University",
+                        labelStyle: TextStyle(
+                            color: Colors.black,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 25),
+                        floatingLabelBehavior: FloatingLabelBehavior.always,
+                        contentPadding: EdgeInsets.fromLTRB(0, 10, 0, 0),
+                      ),
+                      onTap: () {
+                        SelectDialog.showModal(context,
+                            label: "Select your University",
+                            items: universities.keys.toList(),
+                            onChange: (value) {
+                          universityController.text = value;
+                          ref.read(universityProvider.notifier).state =
+                              value.trim();
+                        });
+                      },
+                      onChanged: (value) {
+                        ref.read(universityProvider.notifier).state = value;
+                      },
+                      validator: (value) {
+                        if (value == null || value.trim().isEmpty) {
+                          return "Please select your university";
+                        }
+                        return null;
+                      },
+                    ),
                   ],
                 ),
               ),

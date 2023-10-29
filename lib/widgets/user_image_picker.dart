@@ -1,72 +1,66 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:sasa_mobile_app/providers.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class UserImagePicker extends StatefulWidget {
-  UserImagePicker({super.key, required initialPhoto, update});
+class UserImagePicker extends ConsumerWidget {
+  UserImagePicker({super.key, required this.initialPhotoProvider, update});
 
-  Widget? initialPhoto;
-  //TODO: make user image picker resusable, either make it a consumerwidget or find another way
+  final StateProvider<String> initialPhotoProvider;
   void Function()? update;
 
-  @override
-  State<UserImagePicker> createState() => _UserImagePickerState();
-}
-
-class _UserImagePickerState extends State<UserImagePicker> {
   File? pickedImageFile;
 
-  void pick() async {
-    XFile? pickedImage;
-
-    showDialog(
-        context: context,
-        builder: (BuildContext context) {
-          return AlertDialog(
-            content: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextButton(
-                    onPressed: () async {
-                      pickedImage = await ImagePicker().pickImage(
-                          source: ImageSource.gallery,
-                          maxWidth: 150,
-                          imageQuality: 50);
-                      Navigator.pop(context);
-                    },
-                    child: const Text(
-                      "Photo Library",
-                      style: TextStyle(color: Colors.black),
-                    )),
-                TextButton(
-                    onPressed: () async {
-                      pickedImage = await ImagePicker().pickImage(
-                          source: ImageSource.camera,
-                          preferredCameraDevice: CameraDevice.front);
-                      Navigator.pop(context);
-                    },
-                    child: const Text(
-                      "Take photo",
-                      style: TextStyle(color: Colors.black),
-                    )),
-              ],
-            ),
-          );
-        }).then((value) {
-      if (pickedImage == null) {
-        return;
-      }
-
-      setState(() {
-        pickedImageFile = File(pickedImage!.path);
-        widget.update;
-      });
-    });
-  }
-
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    void pick() async {
+      XFile? pickedImage;
+
+      showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              content: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  TextButton(
+                      onPressed: () async {
+                        pickedImage = await ImagePicker().pickImage(
+                            source: ImageSource.gallery,
+                            maxWidth: 150,
+                            imageQuality: 50);
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        "Photo Library",
+                        style: TextStyle(color: Colors.black),
+                      )),
+                  TextButton(
+                      onPressed: () async {
+                        pickedImage = await ImagePicker().pickImage(
+                            source: ImageSource.camera,
+                            preferredCameraDevice: CameraDevice.front);
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        "Take photo",
+                        style: TextStyle(color: Colors.black),
+                      )),
+                ],
+              ),
+            );
+          }).then((value) {
+        if (pickedImage == null) {
+          return;
+        }
+
+        pickedImageFile = File(pickedImage!.path);
+        ref.read(initialPhotoProvider.notifier).state = pickedImage!.path;
+      });
+    }
+
     return Expanded(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
@@ -74,14 +68,16 @@ class _UserImagePickerState extends State<UserImagePicker> {
           ClipRRect(
             borderRadius: BorderRadius.circular(10),
             child: SizedBox(
-              height: 200,
+              height: 250,
               width: double.infinity,
-              child: pickedImageFile != null
-                  ? Image(
-                      image: FileImage(pickedImageFile!),
-                      fit: BoxFit.fill,
-                    )
-                  : widget.initialPhoto,
+              child: Image(
+                image: ref.watch(initialPhotoProvider) !=
+                        "assets/images/default_photo.png"
+                    ? FileImage(File(ref.watch(initialPhotoProvider)))
+                    : AssetImage(ref.watch(initialPhotoProvider))
+                        as ImageProvider,
+                fit: BoxFit.fitHeight,
+              ),
             ),
           ),
           Row(

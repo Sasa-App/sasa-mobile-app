@@ -8,6 +8,10 @@ class SelectAProfilePhoto extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    bool validator() {
+      return true;
+    }
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -19,7 +23,12 @@ class SelectAProfilePhoto extends ConsumerWidget {
               style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
             ),
             const Text("Be sure to choose your best one!"),
-            UserImagePicker(initialPhoto: ref.watch(profilePhotoProvider)),
+            Form(
+                key: form3Key,
+                child: Form(
+                  child: UserImagePicker(
+                      initialPhotoProvider: profilePhotoProvider),
+                )),
           ]),
     );
     ;
