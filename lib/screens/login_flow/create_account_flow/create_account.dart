@@ -1,3 +1,5 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:sasa_mobile_app/models/profile_details.dart';
@@ -13,6 +15,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sasa_mobile_app/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:sasa_mobile_app/data/universities.dart';
+import 'dart:io';
 
 final firebase = FirebaseAuth.instance;
 
@@ -43,7 +46,32 @@ class CreateAccount extends ConsumerWidget {
       try {
         final userCredentials = await firebase.createUserWithEmailAndPassword(
             email: newUser.enteredEmail, password: newUser.enteredPassword);
-        print(userCredentials);
+
+        final storageRef = FirebaseStorage.instance
+            .ref()
+            .child('user_profile_photo')
+            .child('${userCredentials.user!.uid}.jpg');
+
+        await storageRef
+            .putFile(File(ref.read(profilePhotoProvider.notifier).state));
+        newUser.profilephotoUrl = await storageRef.getDownloadURL();
+
+        await FirebaseFirestore.instance
+            .collection('users')
+            .doc(userCredentials.user!.uid)
+            .set({
+          'name': newUser.enteredName,
+          'age': newUser.enteredAge,
+          'nationality': newUser.enteredNationality,
+          'university': newUser.enteredUniversity,
+          'email': newUser.enteredEmail,
+          'password': newUser.enteredPassword,
+          'profile_photo_url': newUser.profilephotoUrl,
+          'lookingFor': newUser.looking4.toString(),
+          'idealWeekend': newUser.idealWeekend,
+          'greenFlags': newUser.greenFlags,
+          'lifeMovie': newUser.lifeMovie
+        });
       } on FirebaseAuthException catch (error) {
         if (error.code == 'email-already-in-use') {}
         ScaffoldMessenger.of(context).clearSnackBars();
@@ -82,62 +110,61 @@ class CreateAccount extends ConsumerWidget {
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         ),
         body: Column(
+          mainAxisSize: MainAxisSize.min,
           children: [
-            Expanded(
-              child: CarouselSlider(
-                items: screens,
-                disableGesture: false,
-                carouselController: carouselController,
-                options: CarouselOptions(
-                  enableInfiniteScroll: false,
-                  height: double.infinity,
-                  viewportFraction: 1,
-                  onPageChanged: (index, reason) {
-                    if ((currentIndex == 0 &&
-                            !form1Key.currentState!.validate()) ||
-                        (currentIndex == 1 &&
-                            !form2Key.currentState!.validate()) ||
-                        (currentIndex == 2 &&
-                            ref.watch(profilePhotoProvider) ==
-                                "assets/images/default_photo.png") ||
-                        (currentIndex == 3 &&
-                            ref.watch(looking4Provider) == Looking4.none) ||
-                        (currentIndex == 4 &&
-                            !form5Key.currentState!.validate())) {
-                      carouselController.animateToPage(currentIndex);
+            CarouselSlider(
+              items: screens,
+              disableGesture: false,
+              carouselController: carouselController,
+              options: CarouselOptions(
+                enableInfiniteScroll: false,
+                height: MediaQuery.of(context).size.height * 0.8,
+                viewportFraction: 1,
+                onPageChanged: (index, reason) {
+                  if ((currentIndex == 0 &&
+                          !form1Key.currentState!.validate()) ||
+                      (currentIndex == 1 &&
+                          !form2Key.currentState!.validate()) ||
+                      (currentIndex == 2 &&
+                          ref.watch(profilePhotoProvider) ==
+                              "assets/images/default_photo.png") ||
+                      (currentIndex == 3 &&
+                          ref.watch(looking4Provider) == Looking4.none) ||
+                      (currentIndex == 4 &&
+                          !form5Key.currentState!.validate())) {
+                    carouselController.animateToPage(currentIndex);
 
-                      if (currentIndex == 2) {
-                        ScaffoldMessenger.of(context).clearSnackBars();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content:
-                                Text('Please to select a valid profile photo'),
-                          ),
-                        );
-                      }
-
-                      if (currentIndex == 3) {
-                        ScaffoldMessenger.of(context).clearSnackBars();
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Please to select a valid option'),
-                          ),
-                        );
-                      }
-                      return;
+                    if (currentIndex == 2) {
+                      ScaffoldMessenger.of(context).clearSnackBars();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content:
+                              Text('Please to select a valid profile photo'),
+                        ),
+                      );
                     }
 
-                    setState(() {
-                      currentIndex = index;
-                      print(currentIndex);
-                      if (currentIndex == 5) {
-                        isVisible = true;
-                      } else {
-                        isVisible = false;
-                      }
-                    });
-                  },
-                ),
+                    if (currentIndex == 3) {
+                      ScaffoldMessenger.of(context).clearSnackBars();
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Please to select a valid option'),
+                        ),
+                      );
+                    }
+                    return;
+                  }
+
+                  setState(() {
+                    currentIndex = index;
+                    print(currentIndex);
+                    if (currentIndex == 5) {
+                      isVisible = true;
+                    } else {
+                      isVisible = false;
+                    }
+                  });
+                },
               ),
             ),
             DotsIndicator(

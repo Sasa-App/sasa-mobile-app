@@ -16,7 +16,7 @@ class SecurityVerification extends ConsumerWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
-          mainAxisSize: MainAxisSize.max,
+          mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
@@ -27,111 +27,147 @@ class SecurityVerification extends ConsumerWidget {
             Form(
               key: form2Key,
               child: Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    TextFormField(
-                      enabled: false,
-                      initialValue: ref.watch(universityProvider),
-                      style: const TextStyle(fontSize: 25, color: Colors.red),
-                      decoration: const InputDecoration(
-                        labelText: "University",
-                        border: InputBorder.none,
-                        labelStyle: TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 25),
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                        contentPadding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                      ),
-                    ),
-                    TextFormField(
-                      initialValue: ref.read(emailProvider.notifier).state,
-                      style: const TextStyle(fontSize: 25, color: Colors.red),
-                      decoration: InputDecoration(
-                        labelText: "University email",
-                        suffixText: universities[ref.watch(universityProvider)],
-                        labelStyle: const TextStyle(
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 25),
-                        floatingLabelBehavior: FloatingLabelBehavior.always,
-                        contentPadding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
-                      ),
-                      validator: (value) {
-                        if (value == null ||
-                            value.trim().isEmpty ||
-                            value.contains("@")) {
-                          return "Please enter a valid student email";
-                        }
-                        return null;
-                      },
-                      onChanged: (value) {
-                        ref.read(emailProvider.notifier).state = value.trim();
-                        print(ref.read(emailProvider.notifier).state);
-                      },
-                    ),
-                    Column(
-                      children: [
-                        TextFormField(
-                          style:
-                              const TextStyle(fontSize: 25, color: Colors.red),
-                          enabled: false,
-                          decoration: const InputDecoration(
-                            labelText: "Password",
-                            isCollapsed: true,
-                            labelStyle: TextStyle(
-                                color: Colors.black,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 25),
-                            floatingLabelBehavior: FloatingLabelBehavior.always,
-                            contentPadding: EdgeInsets.fromLTRB(0, 10, 0, 0),
-                          ),
-                        ),
-                        const SizedBox(
-                          height: 10,
-                        ),
-                        StatefulBuilder(builder: (context, setState) {
-                          return TextFormField(
-                            //inputFormatters: [maskFormatter],
-                            initialValue: ref.watch(passwordProvider),
-                            obscureText: obscureText,
-                            style: const TextStyle(
-                                fontSize: 20, color: Colors.black),
-                            decoration: InputDecoration(
-                              enabledBorder: const OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.red),
-                              ),
-                              isCollapsed: true,
-                              labelStyle: const TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 25),
-                              contentPadding: const EdgeInsets.all(12),
-                              suffixIcon: IconButton(
-                                icon: const Icon(Icons.remove_red_eye),
-                                color: Colors.red,
-                                onPressed: () {
-                                  setState(() {
-                                    obscureText = !obscureText;
-                                  });
-                                },
+                child: SingleChildScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  child: Column(
+                    children: [
+                      ConstrainedBox(
+                        constraints: BoxConstraints.tightFor(
+                            height: MediaQuery.of(context).size.height * 0.8),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.max,
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            const Spacer(),
+                            TextFormField(
+                              enabled: false,
+                              initialValue: ref.watch(universityProvider),
+                              style: const TextStyle(
+                                  fontSize: 25, color: Colors.red),
+                              decoration: const InputDecoration(
+                                labelText: "University",
+                                border: InputBorder.none,
+                                labelStyle: TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 25),
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always,
+                                contentPadding:
+                                    EdgeInsets.fromLTRB(0, 10, 0, 0),
                               ),
                             ),
-                            validator: (value) {
-                              if (value == null || value.trim().isEmpty) {
-                                return "Please enter a valid password";
-                              }
-                              return null;
-                            },
-                            onChanged: (value) {
-                              ref.read(passwordProvider.notifier).state = value;
-                            },
-                          );
-                        }),
-                      ],
-                    )
-                  ],
+                            const Spacer(),
+                            TextFormField(
+                              initialValue:
+                                  ref.read(emailProvider.notifier).state,
+                              style: const TextStyle(
+                                  fontSize: 25, color: Colors.red),
+                              decoration: InputDecoration(
+                                labelText: "University email",
+                                suffixText:
+                                    universities[ref.watch(universityProvider)],
+                                labelStyle: const TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 25),
+                                floatingLabelBehavior:
+                                    FloatingLabelBehavior.always,
+                                contentPadding:
+                                    const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                              ),
+                              validator: (value) {
+                                if (value == null ||
+                                    value.trim().isEmpty ||
+                                    value.contains("@")) {
+                                  return "Please enter a valid student email";
+                                }
+                                return null;
+                              },
+                              onChanged: (value) {
+                                ref.read(emailProvider.notifier).state =
+                                    value.trim();
+                                print(ref.read(emailProvider.notifier).state);
+                              },
+                            ),
+                            const Spacer(),
+                            Column(
+                              children: [
+                                TextFormField(
+                                  enableSuggestions: false,
+                                  style: const TextStyle(
+                                      fontSize: 25, color: Colors.red),
+                                  enabled: false,
+                                  decoration: const InputDecoration(
+                                    labelText: "Password",
+                                    isCollapsed: true,
+                                    labelStyle: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 25),
+                                    floatingLabelBehavior:
+                                        FloatingLabelBehavior.always,
+                                    contentPadding:
+                                        EdgeInsets.fromLTRB(0, 10, 0, 0),
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 10,
+                                ),
+                                StatefulBuilder(builder: (context, setState) {
+                                  return TextFormField(
+                                    initialValue: ref.watch(passwordProvider),
+                                    obscureText: obscureText,
+                                    style: const TextStyle(
+                                        fontSize: 20, color: Colors.black),
+                                    decoration: InputDecoration(
+                                      enabledBorder: const OutlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.red),
+                                      ),
+                                      isCollapsed: true,
+                                      labelStyle: const TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 25),
+                                      contentPadding: const EdgeInsets.all(12),
+                                      suffixIcon: IconButton(
+                                        icon: const Icon(Icons.remove_red_eye),
+                                        color: Colors.red,
+                                        onPressed: () {
+                                          setState(() {
+                                            obscureText = !obscureText;
+                                          });
+                                        },
+                                      ),
+                                    ),
+                                    validator: (value) {
+                                      if (value == null ||
+                                          value.trim().isEmpty ||
+                                          value.length <= 6) {
+                                        return "Please enter a valid password";
+                                      }
+                                      return null;
+                                    },
+                                    onChanged: (value) {
+                                      ref
+                                          .read(passwordProvider.notifier)
+                                          .state = value;
+                                    },
+                                  );
+                                }),
+                              ],
+                            ),
+                            const Spacer(),
+                          ],
+                        ),
+                      ),
+                      SizedBox(
+                        height: 300,
+                      )
+                    ],
+                  ),
                 ),
               ),
             ),

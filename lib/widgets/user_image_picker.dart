@@ -3,6 +3,7 @@ import 'package:image_picker/image_picker.dart';
 import 'dart:io';
 import 'package:sasa_mobile_app/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_native_image/flutter_native_image.dart';
 
 class UserImagePicker extends ConsumerWidget {
   UserImagePicker({super.key, required this.initialPhotoProvider, update});
@@ -26,17 +27,18 @@ class UserImagePicker extends ConsumerWidget {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   TextButton(
-                      onPressed: () async {
-                        pickedImage = await ImagePicker().pickImage(
-                            source: ImageSource.gallery,
-                            maxWidth: 150,
-                            imageQuality: 50);
-                        Navigator.pop(context);
-                      },
-                      child: const Text(
-                        "Photo Library",
-                        style: TextStyle(color: Colors.black),
-                      )),
+                    onPressed: () async {
+                      pickedImage = await ImagePicker().pickImage(
+                          source: ImageSource.gallery,
+                          //maxWidth: 150,
+                          imageQuality: 100);
+                      Navigator.pop(context);
+                    },
+                    child: const Text(
+                      "Photo Library",
+                      style: TextStyle(color: Colors.black),
+                    ),
+                  ),
                   TextButton(
                       onPressed: () async {
                         pickedImage = await ImagePicker().pickImage(
@@ -51,10 +53,34 @@ class UserImagePicker extends ConsumerWidget {
                 ],
               ),
             );
-          }).then((value) {
+          }).then((value) async {
         if (pickedImage == null) {
           return;
         }
+
+        /*
+        ImageProperties props =
+            await FlutterNativeImage.getImageProperties(pickedImage!.path);
+
+        int newWidth = 0, newHeight = 0;
+        if (props.width! < props.height!) {
+          double scaleFactor = props.height! / 400.0;
+          newWidth = (props.width!.toDouble() / scaleFactor).toInt();
+          newHeight = 400;
+        } else {
+          double scaleFactor = props.width! / 400.0;
+          newWidth = 400;
+          newHeight = (props.height!.toDouble() / scaleFactor).toInt();
+        }
+
+        File resizedFile = await FlutterNativeImage.compressImage(
+            pickedImage!.path,
+            quality: 100,
+            targetWidth: newWidth,
+            targetHeight: newHeight);
+
+        pickedImageFile = resizedFile;
+        */
 
         pickedImageFile = File(pickedImage!.path);
         ref.read(initialPhotoProvider.notifier).state = pickedImage!.path;
@@ -76,7 +102,7 @@ class UserImagePicker extends ConsumerWidget {
                     ? FileImage(File(ref.watch(initialPhotoProvider)))
                     : AssetImage(ref.watch(initialPhotoProvider))
                         as ImageProvider,
-                fit: BoxFit.fitHeight,
+                fit: BoxFit.fitWidth,
               ),
             ),
           ),

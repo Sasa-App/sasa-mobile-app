@@ -21,23 +21,38 @@ class LetsMeetTheRealYou extends ConsumerWidget {
             Form(
               key: form5Key,
               child: Expanded(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceAround,
-                  children: [
-                    styledTextFormField(
-                        labelText: "Describe your ideal weekend...",
-                        ref: ref,
-                        inputTextProvider: idealWeekendProvider),
-                    styledTextFormField(
-                        labelText: "What's your biggest green flag?...",
-                        ref: ref,
-                        inputTextProvider: greenFlagsProvider),
-                    styledTextFormField(
-                        labelText:
-                            "If your life was a movie, which one would it be?",
-                        ref: ref,
-                        inputTextProvider: lifeMovieProvider),
-                  ],
+                child: SingleChildScrollView(
+                  keyboardDismissBehavior:
+                      ScrollViewKeyboardDismissBehavior.onDrag,
+                  child: Column(
+                    children: [
+                      ConstrainedBox(
+                        constraints: BoxConstraints.tightFor(
+                            height: MediaQuery.of(context).size.height * 0.75),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            styledTextFormField(
+                                labelText: "Describe your ideal weekend...",
+                                ref: ref,
+                                inputTextProvider: idealWeekendProvider),
+                            styledTextFormField(
+                                labelText: "What's your biggest green flag?...",
+                                ref: ref,
+                                inputTextProvider: greenFlagsProvider),
+                            styledTextFormField(
+                                labelText:
+                                    "If your life was a movie, which one would it be?",
+                                ref: ref,
+                                inputTextProvider: lifeMovieProvider),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(
+                        height: 300,
+                      )
+                    ],
+                  ),
                 ),
               ),
             )

@@ -104,97 +104,101 @@ class _SignInScreenState extends State<SignInScreen>
           padding: const EdgeInsets.symmetric(horizontal: 20),
         ),
       ),
-      body: TabBarView(controller: _tabController, children: [
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-          child:
-              Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
-            Form(
-              key: formKey,
+      body: TabBarView(
+          controller: _tabController,
+          physics: const NeverScrollableScrollPhysics(),
+          children: [
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
               child: Column(
-                children: [
-                  styledTextFormField(
-                    "Email",
-                    keyboardType: TextInputType.emailAddress,
-                    obscureText: false,
-                    onSaved: (value) {
-                      enteredEmail = value!;
-                    },
-                  ),
-                  const SizedBox(
-                    height: 5,
-                  ),
-                  styledTextFormField(
-                    "Password",
-                    suffixIcon: IconButton(
-                      icon: const Icon(Icons.remove_red_eye),
-                      onPressed: () {
-                        setState(() {
-                          obscureText = !obscureText;
-                        });
-                      },
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Form(
+                      key: formKey,
+                      child: Column(
+                        children: [
+                          styledTextFormField(
+                            "Email",
+                            keyboardType: TextInputType.emailAddress,
+                            obscureText: false,
+                            onSaved: (value) {
+                              enteredEmail = value!;
+                            },
+                          ),
+                          const SizedBox(
+                            height: 5,
+                          ),
+                          styledTextFormField(
+                            "Password",
+                            suffixIcon: IconButton(
+                              icon: const Icon(Icons.remove_red_eye),
+                              onPressed: () {
+                                setState(() {
+                                  obscureText = !obscureText;
+                                });
+                              },
+                            ),
+                            obscureText: obscureText,
+                            onSaved: (value) {
+                              enteredPassword = value!;
+                            },
+                          )
+                        ],
+                      ),
                     ),
-                    obscureText: obscureText,
-                    onSaved: (value) {
-                      enteredPassword = value!;
-                    },
-                  )
-                ],
-              ),
+                    const Spacer(),
+                    CheckboxListTile(
+                        contentPadding: EdgeInsets.zero,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: Transform.translate(
+                          offset: const Offset(-20, 7),
+                          child: const Text(
+                            "Sasa can send me product updates and the occasional newletters",
+                            style: TextStyle(fontSize: 12),
+                            textAlign: TextAlign.start,
+                          ),
+                        ),
+                        value: agreeNewsletters,
+                        activeColor: Colors.black,
+                        onChanged: (value) {
+                          setState(() {
+                            agreeNewsletters = value;
+                          });
+                        }),
+                    CheckboxListTile(
+                        contentPadding: EdgeInsets.zero,
+                        controlAffinity: ListTileControlAffinity.leading,
+                        title: Transform.translate(
+                          offset: const Offset(-20, 7),
+                          child: const Text(
+                            "I agree to the Terms and Conditions and Privacy Policy",
+                            style: TextStyle(fontSize: 12),
+                            textAlign: TextAlign.start,
+                          ),
+                        ),
+                        value: agreeTerms,
+                        activeColor: Colors.black,
+                        onChanged: (value) {
+                          setState(() {
+                            agreeTerms = value;
+                          });
+                        }),
+                    OutlinedButton(
+                      onPressed: () {
+                        submit();
+                      },
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all(Colors.red),
+                      ),
+                      child: const Text(
+                        "Continue",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ]),
             ),
-            const Spacer(),
-            CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
-                controlAffinity: ListTileControlAffinity.leading,
-                title: Transform.translate(
-                  offset: const Offset(-20, 7),
-                  child: const Text(
-                    "Sasa can send me product updates and the occasional newletters",
-                    style: TextStyle(fontSize: 12),
-                    textAlign: TextAlign.start,
-                  ),
-                ),
-                value: agreeNewsletters,
-                activeColor: Colors.black,
-                onChanged: (value) {
-                  setState(() {
-                    agreeNewsletters = value;
-                  });
-                }),
-            CheckboxListTile(
-                contentPadding: EdgeInsets.zero,
-                controlAffinity: ListTileControlAffinity.leading,
-                title: Transform.translate(
-                  offset: const Offset(-20, 7),
-                  child: const Text(
-                    "I agree to the Terms and Conditions and Privacy Policy",
-                    style: TextStyle(fontSize: 12),
-                    textAlign: TextAlign.start,
-                  ),
-                ),
-                value: agreeTerms,
-                activeColor: Colors.black,
-                onChanged: (value) {
-                  setState(() {
-                    agreeTerms = value;
-                  });
-                }),
-            OutlinedButton(
-              onPressed: () {
-                submit();
-              },
-              style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all(Colors.red),
-              ),
-              child: const Text(
-                "Continue",
-                style: TextStyle(color: Colors.white),
-              ),
-            ),
+            Placeholder(),
           ]),
-        ),
-        Placeholder(),
-      ]),
     );
   }
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
 
 enum Looking4 { flirting, frienship, none }
 
@@ -13,6 +14,7 @@ class ProfileDetails extends ChangeNotifier {
   String greenFlags = "";
   String lifeMovie = "";
   Looking4 looking4 = Looking4.none;
+  String profilephotoUrl = "";
 
   ProfileDetails();
 }
