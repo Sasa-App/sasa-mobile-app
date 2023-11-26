@@ -1,23 +1,22 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:sasa_mobile_app/models/profile_details.dart';
+import 'package:sasa_mobile_app/models/user.dart';
 
-ProfileDetails newUser = ProfileDetails();
+CurUser curUser = CurUser();
 
-final nameProvider = StateProvider((ref) => newUser.enteredName);
-final ageProvider = StateProvider((ref) => newUser.enteredAge);
-final emailProvider = StateProvider((ref) => newUser.enteredEmail);
-final nationalityProvider = StateProvider((ref) => newUser.enteredNationality);
-final universityProvider = StateProvider((ref) => newUser.enteredUniversity);
-final profilePhotoProvider =
-    StateProvider((ref) => "assets/images/default_photo.png");
-final idealWeekendProvider =
-    StateProvider<String>((ref) => newUser.idealWeekend);
-final greenFlagsProvider = StateProvider<String>((ref) => newUser.greenFlags);
-final lifeMovieProvider = StateProvider<String>((ref) => newUser.lifeMovie);
-final passwordProvider = StateProvider((ref) => newUser.enteredPassword);
-final looking4Provider = StateProvider((ref) => newUser.looking4);
+final nameProvider = StateProvider((ref) => curUser.name);
+final ageProvider = StateProvider((ref) => curUser.age);
+final emailProvider = StateProvider((ref) => curUser.email);
+final nationalityProvider = StateProvider((ref) => curUser.nationality);
+final universityProvider = StateProvider((ref) => curUser.university);
+final profilePhotoProvider = StateProvider((ref) => curUser.profilephotoUrl);
+final idealWeekendProvider = StateProvider<String>((ref) => curUser.idealWeekend);
+final greenFlagsProvider = StateProvider<String>((ref) => curUser.greenFlags);
+final lifeMovieProvider = StateProvider<String>((ref) => curUser.lifeMovie);
+final passwordProvider = StateProvider((ref) => curUser.password);
+final looking4Provider = StateProvider((ref) => curUser.looking4);
+
 final form1Key = GlobalKey<FormState>();
 final form2Key = GlobalKey<FormState>();
 final form3Key = GlobalKey<FormState>();

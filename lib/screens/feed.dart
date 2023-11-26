@@ -1,25 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sasa_mobile_app/screens/chat.dart';
+import 'package:sasa_mobile_app/screens/profile.dart';
 
 class FeedScreen extends StatefulWidget {
-  const FeedScreen({super.key});
+  FeedScreen({super.key});
 
   @override
   State<FeedScreen> createState() => _FeedScreenState();
 }
 
 class _FeedScreenState extends State<FeedScreen> {
+
   @override
   Widget build(context) {
-    return Scaffold(
-      body: const Center(
+    return const Scaffold(
+      body: Center(
         child: Text("Feed Screen"),
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          FirebaseAuth.instance.signOut();
-        },
-        child: const Icon(Icons.exit_to_app),
       ),
     );
   }

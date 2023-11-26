@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sasa_mobile_app/providers.dart';
 import 'package:sasa_mobile_app/screens/login_flow/create_account_flow/create_account.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
@@ -11,8 +12,7 @@ class SignInScreen extends StatefulWidget {
   State<SignInScreen> createState() => _SignInScreenState();
 }
 
-class _SignInScreenState extends State<SignInScreen>
-    with SingleTickerProviderStateMixin {
+class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderStateMixin {
   var enteredEmail = "";
   var enteredPassword = "";
 
@@ -34,8 +34,8 @@ class _SignInScreenState extends State<SignInScreen>
     formKey.currentState!.save();
 
     try {
-      final userCredentials = await firebase.signInWithEmailAndPassword(
-          email: enteredEmail, password: enteredPassword);
+      final userCredentials =
+          await firebase.signInWithEmailAndPassword(email: enteredEmail, password: enteredPassword);
     } on FirebaseAuthException catch (error) {
       if (error.code == 'email-already-in-use') {}
       if (context.mounted) {
@@ -50,6 +50,7 @@ class _SignInScreenState extends State<SignInScreen>
       return;
     }
     if (context.mounted) Navigator.pop(context);
+    return;
   }
 
   @override
@@ -110,92 +111,90 @@ class _SignInScreenState extends State<SignInScreen>
           children: [
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
-              child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    Form(
-                      key: formKey,
-                      child: Column(
-                        children: [
-                          styledTextFormField(
-                            "Email",
-                            keyboardType: TextInputType.emailAddress,
-                            obscureText: false,
-                            onSaved: (value) {
-                              enteredEmail = value!;
-                            },
-                          ),
-                          const SizedBox(
-                            height: 5,
-                          ),
-                          styledTextFormField(
-                            "Password",
-                            suffixIcon: IconButton(
-                              icon: const Icon(Icons.remove_red_eye),
-                              onPressed: () {
-                                setState(() {
-                                  obscureText = !obscureText;
-                                });
-                              },
-                            ),
-                            obscureText: obscureText,
-                            onSaved: (value) {
-                              enteredPassword = value!;
-                            },
-                          )
-                        ],
+              child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, children: [
+                Form(
+                  key: formKey,
+                  child: Column(
+                    children: [
+                      styledTextFormField(
+                        "Email",
+                        keyboardType: TextInputType.emailAddress,
+                        obscureText: false,
+                        onSaved: (value) {
+                          enteredEmail = value!;
+                        },
                       ),
-                    ),
-                    const Spacer(),
-                    CheckboxListTile(
-                        contentPadding: EdgeInsets.zero,
-                        controlAffinity: ListTileControlAffinity.leading,
-                        title: Transform.translate(
-                          offset: const Offset(-20, 7),
-                          child: const Text(
-                            "Sasa can send me product updates and the occasional newletters",
-                            style: TextStyle(fontSize: 12),
-                            textAlign: TextAlign.start,
-                          ),
-                        ),
-                        value: agreeNewsletters,
-                        activeColor: Colors.black,
-                        onChanged: (value) {
-                          setState(() {
-                            agreeNewsletters = value;
-                          });
-                        }),
-                    CheckboxListTile(
-                        contentPadding: EdgeInsets.zero,
-                        controlAffinity: ListTileControlAffinity.leading,
-                        title: Transform.translate(
-                          offset: const Offset(-20, 7),
-                          child: const Text(
-                            "I agree to the Terms and Conditions and Privacy Policy",
-                            style: TextStyle(fontSize: 12),
-                            textAlign: TextAlign.start,
-                          ),
-                        ),
-                        value: agreeTerms,
-                        activeColor: Colors.black,
-                        onChanged: (value) {
-                          setState(() {
-                            agreeTerms = value;
-                          });
-                        }),
-                    OutlinedButton(
-                      onPressed: () {
-                        submit();
-                      },
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all(Colors.red),
+                      const SizedBox(
+                        height: 5,
                       ),
+                      styledTextFormField(
+                        "Password",
+                        suffixIcon: IconButton(
+                          icon: const Icon(Icons.remove_red_eye),
+                          onPressed: () {
+                            setState(() {
+                              obscureText = !obscureText;
+                            });
+                          },
+                        ),
+                        obscureText: obscureText,
+                        onSaved: (value) {
+                          enteredPassword = value!;
+                        },
+                      )
+                    ],
+                  ),
+                ),
+                const Spacer(),
+                CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    title: Transform.translate(
+                      offset: const Offset(-20, 7),
                       child: const Text(
-                        "Continue",
-                        style: TextStyle(color: Colors.white),
+                        "Sasa can send me product updates and the occasional newletters",
+                        style: TextStyle(fontSize: 12),
+                        textAlign: TextAlign.start,
                       ),
                     ),
-                  ]),
+                    value: agreeNewsletters,
+                    activeColor: Colors.black,
+                    onChanged: (value) {
+                      setState(() {
+                        agreeNewsletters = value;
+                      });
+                    }),
+                CheckboxListTile(
+                    contentPadding: EdgeInsets.zero,
+                    controlAffinity: ListTileControlAffinity.leading,
+                    title: Transform.translate(
+                      offset: const Offset(-20, 7),
+                      child: const Text(
+                        "I agree to the Terms and Conditions and Privacy Policy",
+                        style: TextStyle(fontSize: 12),
+                        textAlign: TextAlign.start,
+                      ),
+                    ),
+                    value: agreeTerms,
+                    activeColor: Colors.black,
+                    onChanged: (value) {
+                      setState(() {
+                        agreeTerms = value;
+                      });
+                    }),
+                OutlinedButton(
+                  onPressed: () {
+                    submit();
+                  },
+                  style: ButtonStyle(
+                    backgroundColor: MaterialStateProperty.all(Colors.red),
+                  ),
+                  child: const Text(
+                    "Continue",
+                    style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ]),
             ),
             Placeholder(),
           ]),

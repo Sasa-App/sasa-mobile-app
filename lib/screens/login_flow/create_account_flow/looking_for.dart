@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:sasa_mobile_app/models/profile_details.dart';
+import 'package:sasa_mobile_app/models/user.dart';
 import 'package:sasa_mobile_app/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -23,12 +23,12 @@ class LookingFor extends ConsumerWidget {
               child: StatefulBuilder(builder: (context, setState) {
                 Color isFlirtingColor =
                     ref.read(looking4Provider.notifier).state ==
-                            Looking4.flirting
+                            Looking4.aGoodTime
                         ? Colors.red
                         : Colors.transparent;
                 Color isFriendshipColor =
                     ref.read(looking4Provider.notifier).state ==
-                            Looking4.frienship
+                            Looking4.aLongTime
                         ? Colors.red
                         : Colors.transparent;
                 return Column(
@@ -39,7 +39,7 @@ class LookingFor extends ConsumerWidget {
                       onPressed: () {
                         setState(() {
                           ref.read(looking4Provider.notifier).state =
-                              Looking4.flirting;
+                              Looking4.aGoodTime;
                         });
                       },
                       style: ButtonStyle(
@@ -49,7 +49,7 @@ class LookingFor extends ConsumerWidget {
                             MaterialStateProperty.all(Colors.pink.shade200),
                       ),
                       child: const Text(
-                        "Flirting 💗 ",
+                        "A good time 😉 ",
                         style: TextStyle(color: Colors.black),
                       ),
                     ),
@@ -57,7 +57,7 @@ class LookingFor extends ConsumerWidget {
                       onPressed: () {
                         setState(() {
                           ref.read(looking4Provider.notifier).state =
-                              Looking4.frienship;
+                              Looking4.aLongTime;
                         });
                       },
                       style: ButtonStyle(
@@ -66,7 +66,7 @@ class LookingFor extends ConsumerWidget {
                         backgroundColor: MaterialStateProperty.all(Colors.grey),
                       ),
                       child: const Text(
-                        "Friendship 👥",
+                        "A long time 🤞🏿",
                         style: TextStyle(color: Colors.black),
                       ),
                     ),
