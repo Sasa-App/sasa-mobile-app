@@ -2,13 +2,17 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class ChatMessages extends StatelessWidget {
-  const ChatMessages({super.key});
+  ChatMessages(this.matchId, {super.key});
+
+  String? matchId;
 
   @override
   Widget build(BuildContext context) {
     return StreamBuilder(
         stream: FirebaseFirestore.instance
-            .collection('chat')
+            .collection('matches')
+            .doc(matchId)
+            .collection("chats")
             .orderBy(
               'createdAt',
               descending: true,

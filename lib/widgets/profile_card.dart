@@ -4,20 +4,23 @@ import 'package:sasa_mobile_app/providers.dart';
 import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 
-Widget profileCard(WidgetRef ref, bool isDisplayedonFeed) {
+Widget profileCard(WidgetRef ref, bool isDisplayedonFeed,
+    {Map<String, dynamic>? userProfile,
+    void Function()? likeFunction,
+    void Function()? dislikeFunction}) {
   final screens = [
     styledTextFormField(
-        labelText: "Describe your ideal weekend...",
-        ref: ref,
-        inputTextProvider: idealWeekendProvider),
+      labelText: "Describe your ideal weekend...",
+      inputText: userProfile?["idealWeekend"] ?? ref.watch(idealWeekendProvider),
+    ),
     styledTextFormField(
-        labelText: "What's your biggest green flag?...",
-        ref: ref,
-        inputTextProvider: greenFlagsProvider),
+      labelText: "What's your biggest green flag?...",
+      inputText: userProfile?["greenFlags"] ?? ref.watch(greenFlagsProvider),
+    ),
     styledTextFormField(
-        labelText: "If your life was a movie, which one would it be?",
-        ref: ref,
-        inputTextProvider: lifeMovieProvider),
+      labelText: "If your life was a movie, which one would it be?",
+      inputText: userProfile?["lifeMovie"] ?? ref.watch(lifeMovieProvider),
+    ),
   ];
   return Column(
     mainAxisSize: MainAxisSize.max,
@@ -37,35 +40,78 @@ Widget profileCard(WidgetRef ref, bool isDisplayedonFeed) {
                     "Your Profile...",
                     style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
                   ),
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(10),
-                  child: SizedBox(
-                    height: 250,
-                    width: double.infinity,
-                    child: Image(
-                      image: ref.watch(profilePhotoProvider) != "assets/images/default_photo.png"
-                          ? curUser.profilephotoUrl == "assets/images/default_photo.png"
-                              ? FileImage(File(ref.watch(profilePhotoProvider)))
-                              : Image.network(curUser.profilephotoUrl).image
-                          : AssetImage(
-                              ref.watch(profilePhotoProvider),
-                            ),
-                      fit: BoxFit.fill,
+                Stack(
+                  clipBehavior: Clip.none,
+                  children: [
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(10),
+                      child: SizedBox(
+                        height: 250,
+                        width: double.infinity,
+                        child: Image(
+                          image:
+                              ref.watch(profilePhotoProvider) != "assets/images/default_photo.png"
+                                  ? curUser.profilephotoUrl == "assets/images/default_photo.png"
+                                      ? FileImage(File(ref.watch(profilePhotoProvider)))
+                                      : Image.network(userProfile?["profile_photo_url"] ??
+                                              curUser.profilephotoUrl)
+                                          .image
+                                  : AssetImage(
+                                      ref.watch(profilePhotoProvider),
+                                    ),
+                          fit: BoxFit.fill,
+                        ),
+                      ),
                     ),
-                  ),
+                    if (isDisplayedonFeed) ...[
+                      Positioned(
+                          right: -15,
+                          bottom: -15,
+                          child: GestureDetector(
+                            onTap: () {
+                              likeFunction!();
+                            },
+                            child: CircleAvatar(
+                              radius: 30,
+                              backgroundColor: Colors.red,
+                              child: Text(
+                                userProfile?["looking4"] == "Looking4.aGoodTime" ? "🔥" : "💗",
+                                style: const TextStyle(fontSize: 30),
+                              ),
+                            ),
+                          )),
+                      Positioned(
+                          left: -15,
+                          bottom: -15,
+                          child: GestureDetector(
+                            onTap: () {
+                              dislikeFunction!();
+                            },
+                            child: const CircleAvatar(
+                              radius: 30,
+                              backgroundColor: Colors.red,
+                              child: Icon(
+                                Icons.remove,
+                                color: Colors.white,
+                                size: 30,
+                              ),
+                            ),
+                          ))
+                    ]
+                  ],
                 ),
-                Text(ref.watch(nameProvider),
+                Text(userProfile?["name"] ?? ref.watch(nameProvider),
                     style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
                 Text(
-                  "🎂 ${ref.watch(ageProvider)}",
+                  "🎂 ${userProfile?["age"] ?? ref.watch(ageProvider)}",
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  ref.watch(nationalityProvider),
+                  userProfile?["nationality"] ?? ref.watch(nationalityProvider),
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
                 Text(
-                  ref.watch(universityProvider),
+                  userProfile?["university"] ?? ref.watch(universityProvider),
                   style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
                 ),
                 const Divider(
@@ -88,10 +134,7 @@ Widget profileCard(WidgetRef ref, bool isDisplayedonFeed) {
 }
 
 Widget styledTextFormField(
-    {required String labelText,
-    required WidgetRef ref,
-    required StateProvider<String> inputTextProvider,
-    Widget? suffixIcon}) {
+    {required String labelText, required String inputText, Widget? suffixIcon}) {
   return Padding(
     padding: const EdgeInsets.symmetric(horizontal: 20),
     child: Column(
@@ -106,7 +149,7 @@ Widget styledTextFormField(
         ),
         TextFormField(
           maxLines: 4,
-          initialValue: ref.watch(inputTextProvider),
+          initialValue: inputText,
           decoration: InputDecoration(
             filled: true,
             enabled: false,

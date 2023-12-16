@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sasa_mobile_app/providers.dart';
 import 'package:sasa_mobile_app/screens/chat.dart';
+import 'package:sasa_mobile_app/screens/chats.dart';
 import 'package:sasa_mobile_app/screens/feed.dart';
 import 'package:sasa_mobile_app/screens/profile.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,7 +16,7 @@ class HomeScreen extends ConsumerStatefulWidget {
 }
 
 class _HomeScreenState extends ConsumerState<HomeScreen> {
-  List<Widget> tabs = [const ChatScreen(), FeedScreen(), const Profile()];
+  List<Widget> tabs = [const ChatsListScreen(), FeedScreen(), const Profile()];
   @override
   void initState() {
     curUser.reloadDetails(ref);
@@ -25,9 +26,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   @override
   Widget build(context) {
     return Scaffold(
-      body: Center(
-        child: tabs[widget.selectedIndex],
-      ),
+      body: tabs[widget.selectedIndex],
       bottomNavigationBar: SizedBox(
         height: 80,
         child: BottomNavigationBar(

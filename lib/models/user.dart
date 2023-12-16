@@ -1,9 +1,13 @@
+import 'dart:collection';
+
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:sasa_mobile_app/models/matches.dart';
 import 'package:sasa_mobile_app/providers.dart';
 import 'package:sasa_mobile_app/data/universities.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'dart:io';
 
 enum Looking4 { aGoodTime, aLongTime, none }
@@ -20,6 +24,9 @@ class CurUser {
   String lifeMovie = "";
   Looking4 looking4 = Looking4.none;
   String profilephotoUrl = "assets/images/default_photo.png";
+  HashSet<String> likedUsers = HashSet<String>();
+  HashSet<String> dislikedUsers = HashSet<String>();
+  HashSet<String> matches = HashSet<String>();
 
   Future<bool> reloadDetails(WidgetRef ref) async {
     final user = FirebaseAuth.instance.currentUser!;
@@ -49,6 +56,18 @@ class CurUser {
     greenFlags = userData.get('greenFlags');
     lifeMovie = userData.get('lifeMovie');
     profilephotoUrl = userData.get("profile_photo_url");
+    matches = userData.data().toString().contains("matches")
+        ? HashSet.from(userData.get("matches"))
+        : matches;
+    print(userData.toString().contains("matches"));
+    print(matches);
+    print(userData.get("matches"));
+    likedUsers = userData.toString().contains("likedUsers")
+        ? HashSet.from(userData.get("likedUsers"))
+        : matches;
+    dislikedUsers = userData.toString().contains("dislikedUsers")
+        ? HashSet.from(userData.get("dislikedUsers"))
+        : matches;
 
     ref.invalidate(nameProvider);
     ref.invalidate(emailProvider);
@@ -89,4 +108,85 @@ class CurUser {
     ref.invalidate(greenFlagsProvider);
     ref.invalidate(idealWeekendProvider);
   }
+
+  Future<double> getCurPage() async {
+    var pref = await SharedPreferences.getInstance();
+    var curPage = pref.getDouble("curPage") ?? 0;
+    return curPage;
+  }
+
+  Future<void> saveCurPage(double curPage) async {
+    var pref = await SharedPreferences.getInstance();
+    print(curPage);
+    pref.setDouble("curPage", curPage);
+  }
+
+  Future<void> clearMemory() async {
+    var pref = await SharedPreferences.getInstance();
+    pref.clear();
+  }
+
+  Future<bool> checkMatch(String userRef) async {
+    curUser.likedUsers.add(userRef);
+
+    final curUserId = FirebaseAuth.instance.currentUser!.uid;
+    final potentialMatch = await FirebaseFirestore.instance.collection('users').doc(userRef).get();
+
+    HashSet<String> potentialMatchLikes = potentialMatch.data().toString().contains("likedUsers")
+        ? HashSet.from(potentialMatch.get("likedUsers"))
+        : HashSet<String>();
+
+    if (potentialMatchLikes.contains(curUserId)) {
+      final docRef = await Matches(potentialMatch.id, curUserId).createMatch();
+      matches.add(docRef);
+      updateMatches(potentialMatch.id, curUserId, docRef);
+      return true;
+    }
+
+    return false;
+  }
+
+  void updateLikesOrDislikes() async {
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(FirebaseAuth.instance.currentUser!.uid)
+        .update({
+      'likedUsers': likedUsers,
+      'dislikedUsers': dislikedUsers,
+    }).onError((error, stackTrace) async {
+      print("oH OH Erro hERE");
+    });
+  }
+
+  void updateMatches(matchedUserId, curUserId, matchRef) async {
+    await FirebaseFirestore.instance.collection('users').doc(matchedUserId).update({
+      'matches': FieldValue.arrayUnion([matchRef]),
+    }).onError((error, stackTrace) async {
+      print("oH OH Erro hERE");
+    });
+
+    await FirebaseFirestore.instance.collection('users').doc(curUserId).update({
+      'matches': matches,
+    }).onError((error, stackTrace) async {
+      print("oH OH Erro hERE");
+    });
+  }
+
+/*
+
+await FirebaseFirestore.instance.collection('users').doc(userCredentials.user!.uid).set({
+          'name': curUser.name,
+          'age': curUser.age,
+          'nationality': curUser.nationality,
+          'university': curUser.university,
+          'email': curUser.email,
+          'profile_photo_url': curUser.profilephotoUrl,
+          'lookingFor': curUser.looking4.toString(),
+          'idealWeekend': curUser.idealWeekend,
+          'greenFlags': curUser.greenFlags,
+          'lifeMovie': curUser.lifeMovie
+        }).onError((error, stackTrace) async {
+          await storageRef.delete();
+        });
+        */
 }

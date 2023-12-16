@@ -4,7 +4,9 @@ import 'package:sasa_mobile_app/widgets/chat_messages.dart';
 import 'package:sasa_mobile_app/widgets/new_message.dart';
 
 class ChatScreen extends StatefulWidget {
-  const ChatScreen({super.key});
+  ChatScreen(this.matchId, {super.key});
+
+  String matchId;
 
   @override
   State<ChatScreen> createState() => _ChatScreenState();
@@ -14,17 +16,11 @@ class _ChatScreenState extends State<ChatScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: const Column(
+      body: Column(
         children: [
-          Expanded(child: ChatMessages()),
-          NewMessage(),
+          Expanded(child: ChatMessages(widget.matchId)),
+          NewMessage(widget.matchId),
         ],
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          FirebaseAuth.instance.signOut();
-        },
-        child: const Icon(Icons.exit_to_app),
       ),
     );
   }

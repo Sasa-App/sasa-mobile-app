@@ -2,9 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:sasa_mobile_app/providers.dart';
 
 class NewMessage extends StatefulWidget {
-  const NewMessage({super.key});
+  NewMessage(this.matchId, {super.key});
+
+  String? matchId;
 
   @override
   State<NewMessage> createState() => _NewMessageState();
@@ -20,6 +23,7 @@ class _NewMessageState extends State<NewMessage> {
   }
 
   void _submitMessge() async {
+    print("here");
     final enteredMessage = _messageController.text;
 
     if (enteredMessage.trim().isEmpty) {
@@ -30,17 +34,13 @@ class _NewMessageState extends State<NewMessage> {
     _messageController.clear();
 
     final user = FirebaseAuth.instance.currentUser!;
-    final userData = await FirebaseFirestore.instance
-        .collection('users')
-        .doc(user.uid)
-        .get(); //could use riverpod instead
 
-    FirebaseFirestore.instance.collection('chat').add({
+    FirebaseFirestore.instance.collection('matches').doc(widget.matchId).collection('chats').add({
       'message': enteredMessage,
       'createdAt': Timestamp.now(),
       'userId': user.uid,
-      'name': userData.data()!['name'],
-      'userImage': userData.data()!['image_url'],
+      'name': curUser.name,
+      'userImage': curUser.profilephotoUrl,
     });
   }
 
@@ -59,8 +59,10 @@ class _NewMessageState extends State<NewMessage> {
           ),
         ),
         IconButton(
-          color: Theme.of(context).colorScheme.primary,
-          onPressed: () {},
+          color: Colors.red,
+          onPressed: () {
+            _submitMessge();
+          },
           icon: const Icon(Icons.send),
         )
       ]),
