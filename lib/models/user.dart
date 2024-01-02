@@ -59,15 +59,12 @@ class CurUser {
     matches = userData.data().toString().contains("matches")
         ? HashSet.from(userData.get("matches"))
         : matches;
-    print(userData.toString().contains("matches"));
-    print(matches);
-    print(userData.get("matches"));
     likedUsers = userData.toString().contains("likedUsers")
         ? HashSet.from(userData.get("likedUsers"))
-        : matches;
+        : likedUsers;
     dislikedUsers = userData.toString().contains("dislikedUsers")
         ? HashSet.from(userData.get("dislikedUsers"))
-        : matches;
+        : dislikedUsers;
 
     ref.invalidate(nameProvider);
     ref.invalidate(emailProvider);
@@ -93,6 +90,9 @@ class CurUser {
     idealWeekend = "";
     greenFlags = "";
     lifeMovie = "";
+    likedUsers = HashSet<String>();
+    dislikedUsers = HashSet<String>();
+    matches = HashSet<String>();
     looking4 = Looking4.none;
     profilephotoUrl = "assets/images/default_photo.png";
 

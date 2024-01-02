@@ -17,6 +17,10 @@ class _ChatsListScreenState extends State<ChatsListScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
+          title: const Text(
+            "Matches",
+            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Colors.red),
+          ),
           shadowColor: Colors.transparent,
           foregroundColor: Colors.transparent,
           backgroundColor: Colors.transparent,
@@ -24,13 +28,13 @@ class _ChatsListScreenState extends State<ChatsListScreen> {
         body: ListView.builder(
             itemCount: curUser.matches.length,
             itemBuilder: ((context, index) {
-              print(curUser.matches.length);
-              var url = getUserDoc(index);
-              return GestureDetector(
-                child: FutureBuilder<List<DocumentSnapshot<Map<String, dynamic>>>>(
-                    future: getUserDoc(index),
-                    builder: (context, snapshot) {
-                      return GestureDetector(
+              return FutureBuilder<List<DocumentSnapshot<Map<String, dynamic>>>>(
+                  future: getUserDoc(index),
+                  builder: (context, snapshot) {
+                    return Offstage(
+                      offstage: !snapshot.hasData,
+                      child: GestureDetector(
+                        behavior: HitTestBehavior.translucent,
                         onTap: (() {
                           Navigator.push(context, MaterialPageRoute(builder: (context) {
                             return ChatScreen(snapshot.data![1].id);
@@ -40,33 +44,40 @@ class _ChatsListScreenState extends State<ChatsListScreen> {
                           children: [
                             const Divider(
                               thickness: 2,
+                              color: Colors.transparent,
                             ),
-                            Row(
-                              children: [
-                                CircleAvatar(
-                                  radius: 50,
-                                  backgroundColor: Colors.white,
-                                  backgroundImage: snapshot.hasData
-                                      ? Image.network(snapshot.data![0]["profile_photo_url"]).image
-                                      : const AssetImage("assets/images/default_photo.png"),
-                                ),
-                                const SizedBox(
-                                  width: 20,
-                                ),
-                                Text(
-                                  snapshot.hasData ? snapshot.data![0]["name"] : "",
-                                  style: TextStyle(fontSize: 25),
-                                )
-                              ],
+                            Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 15),
+                              child: Row(
+                                children: [
+                                  CircleAvatar(
+                                    child: !snapshot.hasData ? CircularProgressIndicator() : null,
+                                    radius: 30,
+                                    backgroundColor: Colors.white,
+                                    backgroundImage: snapshot.hasData
+                                        ? Image.network(snapshot.data![0]["profile_photo_url"])
+                                            .image
+                                        : null,
+                                  ),
+                                  const SizedBox(
+                                    width: 20,
+                                  ),
+                                  Text(
+                                    snapshot.hasData ? snapshot.data![0]["name"] : "",
+                                    style: TextStyle(fontSize: 20),
+                                  )
+                                ],
+                              ),
                             ),
                             const Divider(
                               thickness: 2,
+                              color: Colors.transparent,
                             )
                           ],
                         ),
-                      );
-                    }),
-              );
+                      ),
+                    );
+                  });
             })));
   }
 }
@@ -81,7 +92,9 @@ Future<List<DocumentSnapshot<Map<String, dynamic>>>> getUserDoc(index) async {
 
   final match = await FirebaseFirestore.instance.collection('matches').doc(docRef).get();
 
-  docRef = match.data()!["userId1"];
+  docRef = match.data()!["userId1"] == FirebaseAuth.instance.currentUser!.uid
+      ? match.data()!["userId2"]
+      : match.data()!["userId1"];
 
   doc = await FirebaseFirestore.instance.collection('users').doc(docRef).get();
 

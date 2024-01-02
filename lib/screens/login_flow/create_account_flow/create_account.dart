@@ -66,7 +66,9 @@ class CreateAccount extends ConsumerWidget {
           'lookingFor': curUser.looking4.toString(),
           'idealWeekend': curUser.idealWeekend,
           'greenFlags': curUser.greenFlags,
-          'lifeMovie': curUser.lifeMovie
+          'lifeMovie': curUser.lifeMovie,
+          'likedUsers': curUser.likedUsers,
+          'dislikedUsers': curUser.dislikedUsers
         }).onError((error, stackTrace) async {
           await storageRef.delete();
         });
@@ -109,7 +111,7 @@ class CreateAccount extends ConsumerWidget {
           backgroundColor: Theme.of(context).scaffoldBackgroundColor,
         ),
         body: Column(
-          mainAxisSize: MainAxisSize.min,
+          mainAxisSize: MainAxisSize.max,
           children: [
             CarouselSlider(
               items: screens,
@@ -165,8 +167,10 @@ class CreateAccount extends ConsumerWidget {
               position: currentIndex,
               decorator: const DotsDecorator(activeColor: Colors.red),
             ),
-            const SizedBox(
-              height: 50,
+            const Expanded(
+              child: SizedBox(
+                height: 50,
+              ),
             ),
           ],
         ),

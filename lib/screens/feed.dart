@@ -55,6 +55,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
 
   @override
   Widget build(context) {
+    final authenticatedUser = FirebaseAuth.instance.currentUser!;
     return Scaffold(
       appBar: AppBar(
           title: const Text(
@@ -114,9 +115,13 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
               ),
               Expanded(
                 child: StreamBuilder(
-                  stream: FirebaseFirestore.instance.collection('users').snapshots(),
+                  stream: FirebaseFirestore.instance
+                      .collection('users')
+                      .where(FieldPath.documentId, isNotEqualTo: authenticatedUser.uid)
+                      .snapshots(),
                   builder: (context, snapshot) {
                     if (snapshot.hasData) {
+                      print("yo ${snapshot.data!.size}");
                       var users = snapshot.data!.docs;
                       return PageView.builder(
                           physics: const NeverScrollableScrollPhysics(),
@@ -143,7 +148,6 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                                           content: Text("Start in a conversation in the chats tab"),
                                         ));
                               }
-                              ;
                               feedSwiper.nextPage(
                                   duration: Duration(milliseconds: 500), curve: Curves.ease);
                               curUser.saveCurPage(feedSwiper.page! + 1);
@@ -156,6 +160,10 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                               curUser.saveCurPage(feedSwiper.page! + 1);
                             }
 
+                            if (currentPage > snapshot.data!.size) {
+                              return const Center(child: Text("Nothing new here!"));
+                            }
+
                             return profileCard(
                               ref,
                               true,
@@ -165,7 +173,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                             );
                           });
                     } else {
-                      return CircularProgressIndicator();
+                      return Center(child: CircularProgressIndicator());
                     }
                   },
                 ),
