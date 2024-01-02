@@ -23,9 +23,11 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
 
   late PageController feedSwiper = PageController(keepPage: true);
   var currentPage = 0;
+  bool isReachedEnd = false;
 
   @override
   void initState() {
+    curUser.reloadDetails(ref);
     getFeed() async {
       var initialPage = await curUser.getCurPage();
       feedSwiper = PageController(initialPage: 0 /*initialPage.toInt()*/, keepPage: true);
@@ -72,7 +74,8 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                 size: 30,
               ),
               onPressed: () {
-                curUser.clearMemory();
+                //curUser.clearMemory();
+                print(MediaQuery.of(context).size.height);
               },
             ),
           ]),
@@ -94,6 +97,10 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                     const Spacer(),
                     IconButton(
                       onPressed: () {
+                        print(isReachedEnd);
+                        if (isReachedEnd) {
+                          return;
+                        }
                         curUser.dislikedUsers.remove(visitedUsers.last);
                         curUser.likedUsers.remove(visitedUsers.last);
                         curUser.updateLikesOrDislikes();
@@ -117,11 +124,14 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                 child: StreamBuilder(
                   stream: FirebaseFirestore.instance
                       .collection('users')
-                      .where(FieldPath.documentId, isNotEqualTo: authenticatedUser.uid)
+                      .where(FieldPath.documentId,
+                          whereNotIn: [authenticatedUser.uid] +
+                              List.from(curUser.dislikedUsers) +
+                              List.from(curUser.likedUsers))
                       .snapshots(),
                   builder: (context, snapshot) {
-                    if (snapshot.hasData) {
-                      print("yo ${snapshot.data!.size}");
+                    if (snapshot.hasData && snapshot.data!.size > 0) {
+                      isReachedEnd = false;
                       var users = snapshot.data!.docs;
                       return PageView.builder(
                           physics: const NeverScrollableScrollPhysics(),
@@ -138,15 +148,21 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                           itemBuilder: (context, index) {
                             curUser.updateLikesOrDislikes();
                             void like() async {
+                              if (currentPage == snapshot.data!.size - 1) {
+                                setState(() {
+                                  //isReachedEnd = true
+                                });
+                              }
                               bool isMatch = await curUser.checkMatch(users[index].id);
                               if (isMatch) {
                                 if (!context.mounted) return;
                                 showDialog(
-                                    context: context,
-                                    builder: (context) => const AlertDialog(
-                                          title: Text("You have a match!"),
-                                          content: Text("Start in a conversation in the chats tab"),
-                                        ));
+                                  context: context,
+                                  builder: (context) => const AlertDialog(
+                                    title: Text("You have a match!"),
+                                    content: Text("Start in a conversation in the chats tab"),
+                                  ),
+                                );
                               }
                               feedSwiper.nextPage(
                                   duration: Duration(milliseconds: 500), curve: Curves.ease);
@@ -160,20 +176,20 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                               curUser.saveCurPage(feedSwiper.page! + 1);
                             }
 
-                            if (currentPage > snapshot.data!.size) {
-                              return const Center(child: Text("Nothing new here!"));
-                            }
-
                             return profileCard(
                               ref,
                               true,
+                              MediaQuery.of(context).size.height,
                               userProfile: users[index].data(),
                               likeFunction: like,
                               dislikeFunction: dislike,
                             );
                           });
-                    } else {
+                    } else if ((snapshot.connectionState == ConnectionState.waiting)) {
                       return Center(child: CircularProgressIndicator());
+                    } else {
+                      isReachedEnd = true;
+                      return const Center(child: Text("Nothing new here!"));
                     }
                   },
                 ),

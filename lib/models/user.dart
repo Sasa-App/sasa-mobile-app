@@ -117,7 +117,6 @@ class CurUser {
 
   Future<void> saveCurPage(double curPage) async {
     var pref = await SharedPreferences.getInstance();
-    print(curPage);
     pref.setDouble("curPage", curPage);
   }
 

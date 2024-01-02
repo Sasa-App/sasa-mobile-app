@@ -4,10 +4,14 @@ import 'package:sasa_mobile_app/providers.dart';
 import 'dart:io';
 import 'package:carousel_slider/carousel_slider.dart';
 
-Widget profileCard(WidgetRef ref, bool isDisplayedonFeed,
+Widget profileCard(
+  WidgetRef ref,
+  bool isDisplayedonFeed,
+  double screenHeight,
     {Map<String, dynamic>? userProfile,
     void Function()? likeFunction,
-    void Function()? dislikeFunction}) {
+  void Function()? dislikeFunction,
+}) {
   final screens = [
     styledTextFormField(
       labelText: "Describe your ideal weekend...",
@@ -46,7 +50,7 @@ Widget profileCard(WidgetRef ref, bool isDisplayedonFeed,
                     ClipRRect(
                       borderRadius: BorderRadius.circular(10),
                       child: SizedBox(
-                        height: 250,
+                        height: 1 / 4 * screenHeight,
                         width: double.infinity,
                         child: Image(
                           image:
@@ -82,7 +86,7 @@ Widget profileCard(WidgetRef ref, bool isDisplayedonFeed,
                           )),
                       Positioned(
                           left: -15,
-                          bottom: -15,
+                          bottom: 1 / 11 * screenHeight,
                           child: GestureDetector(
                             onTap: () {
                               dislikeFunction!();
@@ -127,7 +131,11 @@ Widget profileCard(WidgetRef ref, bool isDisplayedonFeed,
       CarouselSlider(
         items: screens,
         options:
-            CarouselOptions(enableInfiniteScroll: true, viewportFraction: 1, aspectRatio: 16 / 7),
+            CarouselOptions(
+          height: 1 / 4.5 * screenHeight,
+          enableInfiniteScroll: true,
+          viewportFraction: 1,
+        ),
       ),
     ],
   );

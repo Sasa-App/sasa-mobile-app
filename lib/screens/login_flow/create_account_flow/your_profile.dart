@@ -10,6 +10,6 @@ class YourProfile extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return profileCard(ref, false);
+    return profileCard(ref, false, MediaQuery.of(context).size.height);
   }
 }

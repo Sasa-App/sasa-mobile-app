@@ -19,7 +19,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   List<Widget> tabs = [const ChatsListScreen(), FeedScreen(), const Profile()];
   @override
   void initState() {
-    curUser.reloadDetails(ref);
+    
     super.initState();
   }
 
@@ -56,6 +56,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
           onTap: ((index) {
             setState(() {
+              curUser.reloadDetails(ref);
               widget.selectedIndex = index;
             });
             ;

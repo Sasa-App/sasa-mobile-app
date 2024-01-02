@@ -35,9 +35,13 @@ class _NewMessageState extends State<NewMessage> {
 
     final user = FirebaseAuth.instance.currentUser!;
 
-    FirebaseFirestore.instance.collection('matches').doc(widget.matchId).collection('chats').add({
+    await FirebaseFirestore.instance
+        .collection('matches')
+        .doc(widget.matchId)
+        .collection('chats')
+        .add({
       'message': enteredMessage,
-      'createdAt': Timestamp.now(),
+      'createdAt': FieldValue.serverTimestamp(), //Timestamp.now(),
       'userId': user.uid,
       'name': curUser.name,
       'userImage': curUser.profilephotoUrl,

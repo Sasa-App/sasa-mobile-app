@@ -7,6 +7,7 @@ class ChatMessages extends StatelessWidget {
   ChatMessages(this.matchId, {super.key});
 
   String? matchId;
+  List<String> readMessages = [];
 
   @override
   Widget build(BuildContext context) {
@@ -57,6 +58,7 @@ class ChatMessages extends StatelessWidget {
               final nextUserIsSame = nextMessageUserId == currentMessageUserId;
 
               if (nextUserIsSame) {
+                print("Here");
                 return MessageBubble.next(
                     message: chatMessage['message'],
                     isMe: authenticatedUser.uid == currentMessageUserId);
