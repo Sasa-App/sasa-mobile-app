@@ -16,7 +16,7 @@ class FeedScreen extends ConsumerStatefulWidget {
 }
 
 class _FeedScreenState extends ConsumerState<FeedScreen> {
-  Stream<QuerySnapshot<Map<String, dynamic>>> snapshots =
+  Stream<QuerySnapshot<Map<String, dynamic>>> feedSnapshots =
       FirebaseFirestore.instance.collection('users').snapshots();
 
   List<String> visitedUsers = [];
@@ -28,21 +28,23 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
   @override
   void initState() {
     curUser.reloadDetails(ref);
+    /*
     getFeed() async {
-      var initialPage = await curUser.getCurPage();
-      feedSwiper = PageController(initialPage: 0 /*initialPage.toInt()*/, keepPage: true);
+      currentPage = await curUser.getCurPage().then((value) => value.toInt());
+      feedSwiper = PageController(initialPage: currentPage.toInt(), keepPage: true);
     }
 
     getFeed();
+    */
 
     //feedSwiper = PageController(keepPage: true);
+
     /*
-    snapshots.listen((querySnapshot) {
+    feedSnapshots.listen((querySnapshot) {
       //users.removeAll
-      for (QueryDocumentSnapshot document in querySnapshot.docs) {
-        //querySnapshot.docChanges[0].type == DocumentChangeType.added
-        users.add(document.data() as Map<String, dynamic>);
-      }
+      querySnapshot.docChanges.where((change) {
+        return change.type == DocumentChangeType.added;
+      });
     });
     */
 
@@ -74,7 +76,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                 size: 30,
               ),
               onPressed: () {
-                //curUser.clearMemory();
+                curUser.clearMemory();
                 print(MediaQuery.of(context).size.height);
               },
             ),
@@ -125,12 +127,14 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                   stream: FirebaseFirestore.instance
                       .collection('users')
                       .where(FieldPath.documentId,
-                          whereNotIn: [authenticatedUser.uid] +
-                              List.from(curUser.dislikedUsers) +
-                              List.from(curUser.likedUsers))
+                          whereNotIn: [authenticatedUser.uid] + List.from(curUser.matches))
                       .snapshots(),
                   builder: (context, snapshot) {
-                    if (snapshot.hasData && snapshot.data!.size > 0) {
+                    if ((snapshot.connectionState == ConnectionState.waiting)) {
+                      return Center(child: CircularProgressIndicator());
+                    } else if (snapshot.hasData &&
+                        snapshot.data!.size > 0 &&
+                        currentPage < snapshot.data!.size - 1) {
                       isReachedEnd = false;
                       var users = snapshot.data!.docs;
                       return PageView.builder(
@@ -148,11 +152,17 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                           itemBuilder: (context, index) {
                             curUser.updateLikesOrDislikes();
                             void like() async {
-                              if (currentPage == snapshot.data!.size - 1) {
+                              //To generate a new page
+                              print("yo ${currentPage}");
+                              print("hi ${snapshot.data!.size - 1}");
+                              if (currentPage >= snapshot.data!.size - 1) {
+                                print("Here");
                                 setState(() {
-                                  //isReachedEnd = true
+                                  curUser.saveCurPage(feedSwiper.page! + 1);
+                                  isReachedEnd = true;
                                 });
                               }
+
                               bool isMatch = await curUser.checkMatch(users[index].id);
                               if (isMatch) {
                                 if (!context.mounted) return;
@@ -185,10 +195,7 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                               dislikeFunction: dislike,
                             );
                           });
-                    } else if ((snapshot.connectionState == ConnectionState.waiting)) {
-                      return Center(child: CircularProgressIndicator());
                     } else {
-                      isReachedEnd = true;
                       return const Center(child: Text("Nothing new here!"));
                     }
                   },
