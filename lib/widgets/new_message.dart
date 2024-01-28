@@ -43,8 +43,8 @@ class _NewMessageState extends State<NewMessage> {
       'message': enteredMessage,
       'createdAt': FieldValue.serverTimestamp(), //Timestamp.now(),
       'userId': user.uid,
-      'name': curUser.name,
-      'userImage': curUser.profilephotoUrl,
+      'name': curUser.doc!["name"],
+      'userImage': curUser.doc!["profile_photo_url"],
     });
   }
 

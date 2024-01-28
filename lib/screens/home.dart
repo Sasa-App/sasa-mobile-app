@@ -6,6 +6,8 @@ import 'package:sasa_mobile_app/screens/chats.dart';
 import 'package:sasa_mobile_app/screens/feed.dart';
 import 'package:sasa_mobile_app/screens/profile.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'dart:math';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   HomeScreen({super.key});
@@ -19,7 +21,6 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
   List<Widget> tabs = [const ChatsListScreen(), FeedScreen(), const Profile()];
   @override
   void initState() {
-    
     super.initState();
   }
 
@@ -56,7 +57,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
           ],
           onTap: ((index) {
             setState(() {
-              curUser.reloadDetails(ref);
+              curUser.downloadUserDoc(ref);
               widget.selectedIndex = index;
             });
             ;

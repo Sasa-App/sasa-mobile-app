@@ -3,8 +3,8 @@ import 'package:sasa_mobile_app/models/user.dart';
 import 'package:sasa_mobile_app/providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-class LookingFor extends ConsumerWidget {
-  LookingFor({super.key});
+class InterestedIn extends ConsumerWidget {
+  const InterestedIn({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -15,22 +15,18 @@ class LookingFor extends ConsumerWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const Text(
-              "Looking for...",
+              "Interested in...",
               style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
             ),
-            const Text("We'll connect you to other users with similar answers"),
+            //const Text("We'll connect you to other users with similar answers"),
             Expanded(
               child: StatefulBuilder(builder: (context, setState) {
-                Color isAGoodTimeColor =
-                    ref.read(looking4Provider.notifier).state ==
-                            Looking4.aGoodTime
-                        ? Colors.red
-                        : Colors.transparent;
-                Color isALongTimeColor =
-                    ref.read(looking4Provider.notifier).state ==
-                            Looking4.aLongTime
-                        ? Colors.red
-                        : Colors.transparent;
+                Color isMaleColor = ref.read(interstedInProvider.notifier).state == Interest.men
+                    ? Colors.red
+                    : Colors.transparent;
+                Color isFemaleColor = ref.read(interstedInProvider.notifier).state == Interest.women
+                    ? Colors.red
+                    : Colors.transparent;
                 return Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -38,35 +34,30 @@ class LookingFor extends ConsumerWidget {
                     OutlinedButton(
                       onPressed: () {
                         setState(() {
-                          ref.read(looking4Provider.notifier).state =
-                              Looking4.aGoodTime;
+                          ref.read(interstedInProvider.notifier).state = Interest.men;
                         });
                       },
                       style: ButtonStyle(
-                        side: MaterialStateProperty.all(
-                            BorderSide(color: isAGoodTimeColor, width: 3)),
-                        backgroundColor:
-                            MaterialStateProperty.all(Colors.pink.shade200),
+                        side: MaterialStateProperty.all(BorderSide(color: isMaleColor, width: 3)),
+                        backgroundColor: MaterialStateProperty.all(Colors.grey),
                       ),
                       child: const Text(
-                        "A good time 😉 ",
+                        "Men",
                         style: TextStyle(color: Colors.black),
                       ),
                     ),
                     OutlinedButton(
                       onPressed: () {
                         setState(() {
-                          ref.read(looking4Provider.notifier).state =
-                              Looking4.aLongTime;
+                          ref.read(interstedInProvider.notifier).state = Interest.women;
                         });
                       },
                       style: ButtonStyle(
-                        side: MaterialStateProperty.all(
-                            BorderSide(color: isALongTimeColor, width: 3)),
-                        backgroundColor: MaterialStateProperty.all(Colors.grey),
+                        side: MaterialStateProperty.all(BorderSide(color: isFemaleColor, width: 3)),
+                        backgroundColor: MaterialStateProperty.all(Colors.pink.shade200),
                       ),
                       child: const Text(
-                        "A long time 🤞🏿",
+                        "Women",
                         style: TextStyle(color: Colors.black),
                       ),
                     ),

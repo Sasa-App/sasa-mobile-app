@@ -25,10 +25,10 @@ class _ChatsListScreenState extends State<ChatsListScreen> {
           foregroundColor: Colors.transparent,
           backgroundColor: Colors.transparent,
         ),
-        body: curUser.matches.isEmpty
+        body: curUser.doc!["matches"].isEmpty
             ? const Center(child: Text("No matches yet!"))
             : ListView.builder(
-            itemCount: curUser.matches.length,
+                itemCount: curUser.doc!["matches"].length,
             itemBuilder: ((context, index) {
               return FutureBuilder<List<DocumentSnapshot<Map<String, dynamic>>>>(
                   future: getUserDoc(index),

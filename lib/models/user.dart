@@ -12,59 +12,31 @@ import 'dart:io';
 
 enum Looking4 { aGoodTime, aLongTime, none }
 
+enum Interest { men, women, none }
+
 class CurUser {
-  String name = "";
-  String age = "";
-  String nationality = "";
-  String university = "";
-  String email = "";
-  String password = "";
-  String idealWeekend = "";
-  String greenFlags = "";
-  String lifeMovie = "";
-  Looking4 looking4 = Looking4.none;
-  String profilephotoUrl = "assets/images/default_photo.png";
-  HashSet<String> likedUsers = HashSet<String>();
-  HashSet<String> dislikedUsers = HashSet<String>();
-  HashSet<String> matches = HashSet<String>();
+  Map<String, dynamic>? doc;
+  String id = "";
+  String newName = "";
+  String newAge = "";
+  String newNationality = "";
+  String newUniversity = "";
+  String newEmail = "";
+  String newPassword = "";
+  String newIdealWeekend = "";
+  String newGreenFlags = "";
+  String newLifeMovie = "";
+  Looking4 newLooking4 = Looking4.none;
+  Interest newInterestedIn = Interest.none;
+  String newProfilePhotoUrl = "assets/images/default_photo.png";
 
-  Future<bool> reloadDetails(WidgetRef ref) async {
-    final user = FirebaseAuth.instance.currentUser!;
-    final userData = await FirebaseFirestore.instance.collection('users').doc(user.uid).get();
-
-    /*
-    email =
-        "${ref.read(emailProvider.notifier).state}${universities[ref.watch(universityProvider)]}";
-    password = ref.read(passwordProvider.notifier).state;
-    name = ref.read(nameProvider.notifier).state;
-    age = ref.read(ageProvider.notifier).state;
-    university = ref.read(universityProvider.notifier).state;
-    nationality = ref.read(nationalityProvider.notifier).state;
-    looking4 = ref.read(looking4Provider.notifier).state;
-    idealWeekend = ref.read(idealWeekendProvider.notifier).state;
-    greenFlags = ref.read(greenFlagsProvider.notifier).state;
-    lifeMovie = ref.read(lifeMovieProvider.notifier).state;
-    */
-
-    email = userData.get('email');
-    name = userData.get('name');
-    age = userData.get('age');
-    university = userData.get('university');
-    nationality = userData.get('nationality');
-    looking4 = Looking4.values.firstWhere((e) => e.toString() == userData.get('lookingFor'));
-    idealWeekend = userData.get('idealWeekend');
-    greenFlags = userData.get('greenFlags');
-    lifeMovie = userData.get('lifeMovie');
-    profilephotoUrl = userData.get("profile_photo_url");
-    matches = userData.data().toString().contains("matches")
-        ? HashSet.from(userData.get("matches"))
-        : matches;
-    likedUsers = userData.toString().contains("likedUsers")
-        ? HashSet.from(userData.get("likedUsers"))
-        : likedUsers;
-    dislikedUsers = userData.toString().contains("dislikedUsers")
-        ? HashSet.from(userData.get("dislikedUsers"))
-        : dislikedUsers;
+  Future<bool> downloadUserDoc(WidgetRef ref) async {
+    id = FirebaseAuth.instance.currentUser!.uid;
+    await FirebaseFirestore.instance
+        .collection('users')
+        .doc(id)
+        .get()
+        .then((value) => doc = value.data());
 
     ref.invalidate(nameProvider);
     ref.invalidate(emailProvider);
@@ -81,20 +53,23 @@ class CurUser {
   }
 
   void reset(WidgetRef ref) {
-    name = "";
-    age = "";
-    nationality = "";
-    university = "";
-    email = "";
-    password = "";
-    idealWeekend = "";
-    greenFlags = "";
-    lifeMovie = "";
+    newName = "";
+    newAge = "";
+    newNationality = "";
+    newUniversity = "";
+    newEmail = "";
+    newPassword = "";
+    newIdealWeekend = "";
+    newGreenFlags = "";
+    newLifeMovie = "";
+    doc = null;
+    /*
     likedUsers = HashSet<String>();
     dislikedUsers = HashSet<String>();
     matches = HashSet<String>();
-    looking4 = Looking4.none;
-    profilephotoUrl = "assets/images/default_photo.png";
+    */
+    newLooking4 = Looking4.none;
+    newProfilePhotoUrl = "assets/images/default_photo.png";
 
     ref.invalidate(nameProvider);
     ref.invalidate(emailProvider);
@@ -126,8 +101,6 @@ class CurUser {
   }
 
   Future<bool> checkMatch(String userRef) async {
-    curUser.likedUsers.add(userRef);
-
     final curUserId = FirebaseAuth.instance.currentUser!.uid;
     final potentialMatch = await FirebaseFirestore.instance.collection('users').doc(userRef).get();
 
@@ -137,7 +110,7 @@ class CurUser {
 
     if (potentialMatchLikes.contains(curUserId)) {
       final docRef = await Matches(potentialMatch.id, curUserId).createMatch();
-      matches.add(docRef);
+      doc!["matches"].add(docRef);
       updateMatches(potentialMatch.id, curUserId, docRef);
       return true;
     }
@@ -145,19 +118,19 @@ class CurUser {
     return false;
   }
 
-  void updateLikesOrDislikes() async {
+  void uploadUserDoc() async {
     await FirebaseFirestore.instance
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
-        .update({
-      'likedUsers': likedUsers,
-      'dislikedUsers': dislikedUsers,
-    }).onError((error, stackTrace) async {
+        .update(doc!)
+        .onError((error, stackTrace) async {
       print("oH OH Erro hERE");
     });
   }
 
+  //TODO - Get rid
   void updateMatches(matchedUserId, curUserId, matchRef) async {
+    //Better to Query Matches
     await FirebaseFirestore.instance.collection('users').doc(matchedUserId).update({
       'matches': FieldValue.arrayUnion([matchRef]),
     }).onError((error, stackTrace) async {
@@ -165,7 +138,7 @@ class CurUser {
     });
 
     await FirebaseFirestore.instance.collection('users').doc(curUserId).update({
-      'matches': matches,
+      'matches': doc!["matches"],
     }).onError((error, stackTrace) async {
       print("oH OH Erro hERE");
     });

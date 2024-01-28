@@ -26,11 +26,12 @@ void main() async {
               if (snapshot.connectionState == ConnectionState.waiting) {
                 return const SplashScreen();
               }
-              if (snapshot.hasData) {
+            if (snapshot.hasData && FirebaseAuth.instance.currentUser!.emailVerified) {
                 return HomeScreen();
               }
               return const LoginScreen();
-            }),
+          },
+        ),
       ),
     ),
   );

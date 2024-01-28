@@ -54,16 +54,17 @@ Widget profileCard(
                         width: double.infinity,
                         child: Image(
                           image:
-                              ref.watch(profilePhotoProvider) != "assets/images/default_photo.png"
-                                  ? curUser.profilephotoUrl == "assets/images/default_photo.png"
-                                      ? FileImage(File(ref.watch(profilePhotoProvider)))
-                                      : Image.network(userProfile?["profile_photo_url"] ??
-                                              curUser.profilephotoUrl)
-                                          .image
+                              userProfile != null
+                              ? Image.network(userProfile["profile_photo_url"] ??
+                                      curUser.doc!["profile_photo_url"])
+                                  .image
+                              : curUser.newProfilePhotoUrl == "assets/images/default_photo.png"
+                                  ? FileImage(File(ref.watch(profilePhotoProvider)))
+                                      as ImageProvider
                                   : AssetImage(
                                       ref.watch(profilePhotoProvider),
                                     ),
-                          fit: BoxFit.fill,
+                          fit: BoxFit.fitWidth,
                         ),
                       ),
                     ),
@@ -157,10 +158,10 @@ Widget styledTextFormField(
         ),
         TextFormField(
           maxLines: 4,
+          readOnly: true,
           initialValue: inputText,
           decoration: InputDecoration(
             filled: true,
-            enabled: false,
             fillColor: Colors.grey.shade200,
             enabledBorder: OutlineInputBorder(
                 borderSide: const BorderSide(color: Colors.transparent),

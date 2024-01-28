@@ -34,8 +34,21 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
     formKey.currentState!.save();
 
     try {
-      final userCredentials =
-          await firebase.signInWithEmailAndPassword(email: enteredEmail, password: enteredPassword);
+      final userCredentials = await firebase
+          .signInWithEmailAndPassword(email: enteredEmail, password: enteredPassword)
+          .then((value) {
+        if (!value.user!.emailVerified) {
+          value.user?.sendEmailVerification();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text(
+                  'Please check your inbox to verify your email. Ensure to check your junk/spam!'),
+            ),
+          );
+        } else {
+          Navigator.pop(context);
+        }
+      });
     } on FirebaseAuthException catch (error) {
       if (error.code == 'email-already-in-use') {}
       if (context.mounted) {
@@ -49,7 +62,6 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
 
       return;
     }
-    if (context.mounted) Navigator.pop(context);
     return;
   }
 

@@ -27,6 +27,7 @@ class Profile extends ConsumerWidget {
                 },
               ),
             ]),
-        body: profileCard(ref, false, MediaQuery.of(context).size.height));
+        body:
+            profileCard(ref, false, MediaQuery.of(context).size.height, userProfile: curUser.doc));
   }
 }

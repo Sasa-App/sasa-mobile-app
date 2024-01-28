@@ -7,6 +7,8 @@ import 'package:sasa_mobile_app/screens/profile.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:sasa_mobile_app/widgets/profile_card.dart';
+import 'package:collection/collection.dart';
+import 'dart:math';
 
 class FeedScreen extends ConsumerStatefulWidget {
   FeedScreen({super.key});
@@ -16,18 +18,29 @@ class FeedScreen extends ConsumerStatefulWidget {
 }
 
 class _FeedScreenState extends ConsumerState<FeedScreen> {
-  Stream<QuerySnapshot<Map<String, dynamic>>> feedSnapshots =
+  //HashSet<String> feed = feedSnapshots.toSet();
+  //late Set<QueryDocumentSnapshot<Map<String, dynamic>?>> feedSnapshots;
+  Stream<QuerySnapshot<Map<String, dynamic>>> users =
       FirebaseFirestore.instance.collection('users').snapshots();
+
+  //QuerySnapshot<Map<String, dynamic>> firstBatch = await FirebaseFirestore.instance.collection('users').snapshots().first;
+
+  //String curProfileId =
+
+  String? nextProfileId;
+  String? curProfileId;
 
   List<String> visitedUsers = [];
 
   late PageController feedSwiper = PageController(keepPage: true);
   var currentPage = 0;
+  bool pageChanged = false;
   bool isReachedEnd = false;
 
   @override
   void initState() {
-    curUser.reloadDetails(ref);
+    curUser.downloadUserDoc(ref);
+
     /*
     getFeed() async {
       currentPage = await curUser.getCurPage().then((value) => value.toInt());
@@ -38,28 +51,41 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
     */
 
     //feedSwiper = PageController(keepPage: true);
-
-    /*
-    feedSnapshots.listen((querySnapshot) {
+/*
+    users.listen((querySnapshot) {
       //users.removeAll
       querySnapshot.docChanges.where((change) {
-        return change.type == DocumentChangeType.added;
+        return change.type == DocumentChangeType.removed;
       });
-    });
-    */
+    }).onData((data) {
+      if (curUser.doc?["lastSeen"] == null ||
+          data.docChanges.last.doc.id == curUser.doc?["lastSeen"]) {
+        print("Here 1");
+        pageChanged = false;
+      } /* else {
+        print("Here 4");
+        //pageChanged = true;
+        isReachedEnd = true;
+      }*/
+    });*/
 
+    //getFirstUserDoc();
+    getNextUserDoc();
     super.initState();
   }
 
   @override
   void dispose() {
     feedSwiper.dispose();
+    print("Here 3");
+    curUser.uploadUserDoc();
+
     super.dispose();
   }
 
   @override
   Widget build(context) {
-    final authenticatedUser = FirebaseAuth.instance.currentUser!;
+    getFirstUserDoc();
     return Scaffold(
       appBar: AppBar(
           title: const Text(
@@ -99,16 +125,14 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                     const Spacer(),
                     IconButton(
                       onPressed: () {
+                        /*
                         print(isReachedEnd);
                         if (isReachedEnd) {
                           return;
                         }
-                        curUser.dislikedUsers.remove(visitedUsers.last);
-                        curUser.likedUsers.remove(visitedUsers.last);
-                        curUser.updateLikesOrDislikes();
-                        feedSwiper.previousPage(
-                            duration: Duration(milliseconds: 500), curve: Curves.ease);
-                        curUser.saveCurPage(feedSwiper.page! - 1);
+                        curUser.doc!["dislikedUsers"].remove(visitedUsers.last);
+                        curUser.doc!["likedUsers"].remove(visitedUsers.last);
+                        curUser.uploadUserDoc();*/
                       },
                       icon: const Icon(
                         Icons.restore_rounded,
@@ -123,120 +147,162 @@ class _FeedScreenState extends ConsumerState<FeedScreen> {
                 height: 20,
               ),
               Expanded(
-                child: StreamBuilder(
-                  stream: FirebaseFirestore.instance
-                      .collection('users')
-                      .where(FieldPath.documentId,
-                          whereNotIn: [authenticatedUser.uid] + List.from(curUser.matches))
-                      .snapshots(),
-                  builder: (context, snapshot) {
-                    if ((snapshot.connectionState == ConnectionState.waiting)) {
-                      return Center(child: CircularProgressIndicator());
-                    } else if (snapshot.hasData &&
-                        snapshot.data!.size > 0 &&
-                        currentPage < snapshot.data!.size - 1) {
-                      isReachedEnd = false;
-                      var users = snapshot.data!.docs;
-                      return PageView.builder(
-                          physics: const NeverScrollableScrollPhysics(),
-                          controller: feedSwiper,
-                          itemCount: users.length,
-                          onPageChanged: (page) {
-                            if (currentPage < page) {
-                              visitedUsers.add(users[currentPage].id);
-                            } else {
-                              visitedUsers.removeLast();
-                            }
-                            currentPage = page;
-                          },
-                          itemBuilder: (context, index) {
-                            curUser.updateLikesOrDislikes();
-                            void like() async {
-                              //To generate a new page
-                              print("yo ${currentPage}");
-                              print("hi ${snapshot.data!.size - 1}");
-                              if (currentPage >= snapshot.data!.size - 1) {
-                                print("Here");
-                                setState(() {
-                                  curUser.saveCurPage(feedSwiper.page! + 1);
-                                  isReachedEnd = true;
-                                });
-                              }
+                child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                    stream: users,
+                    builder: (context, users) {
+                      if ((users.connectionState == ConnectionState.waiting)) {
+                        return Center(child: CircularProgressIndicator());
+                      } else if (users.hasData & !isReachedEnd) {
+                        String userProfileId = nextProfileId!;
+                        print("Yoo ${curProfileId}");
 
-                              bool isMatch = await curUser.checkMatch(users[index].id);
-                              if (isMatch) {
-                                if (!context.mounted) return;
-                                showDialog(
-                                  context: context,
-                                  builder: (context) => const AlertDialog(
-                                    title: Text("You have a match!"),
-                                    content: Text("Start in a conversation in the chats tab"),
-                                  ),
-                                );
-                              }
-                              feedSwiper.nextPage(
-                                  duration: Duration(milliseconds: 500), curve: Curves.ease);
-                              curUser.saveCurPage(feedSwiper.page! + 1);
+                        curUser.doc!["lastSeen"] = userProfileId;
+
+                        QueryDocumentSnapshot<Map<String, dynamic>?> userProfile =
+                            users.data!.docs.where((element) => element.id == userProfileId).first;
+
+                        void like() async {
+                          bool isMatch = await curUser.checkMatch(userProfileId);
+                          setState(() {
+                            curUser.doc!["likedUsers"].add(userProfileId);
+
+                            if (isMatch) {
+                              if (!context.mounted) return;
+                              showDialog(
+                                context: context,
+                                builder: (context) => const AlertDialog(
+                                  title: Text("You have a match!"),
+                                  content: Text("Start in a conversation in the chats tab"),
+                                ),
+                              );
                             }
 
-                            void dislike() {
-                              curUser.dislikedUsers.add(users[index].id);
-                              feedSwiper.nextPage(
-                                  duration: Duration(milliseconds: 500), curve: Curves.ease);
-                              curUser.saveCurPage(feedSwiper.page! + 1);
-                            }
-
-                            return profileCard(
-                              ref,
-                              true,
-                              MediaQuery.of(context).size.height,
-                              userProfile: users[index].data(),
-                              likeFunction: like,
-                              dislikeFunction: dislike,
-                            );
+                            
+                            curProfileId = nextProfileId;
+                            getNextUserDoc(curUsers: users.data!);
+                            curUser.uploadUserDoc();
+                            pageChanged = true;
                           });
-                    } else {
-                      return const Center(child: Text("Nothing new here!"));
-                    }
-                  },
-                ),
-              ),
+                        }
+
+                        void dislike() {
+                          setState(() {
+                            curUser.doc!["dislikedUsers"].add(userProfileId);
+
+                            curProfileId = nextProfileId;
+                            getNextUserDoc(curUsers: users.data!);
+                            curUser.uploadUserDoc();
+                            pageChanged = true;
+                          });
+                        }
+
+                        return profileCard(
+                          ref,
+                          true,
+                          MediaQuery.of(context).size.height,
+                          userProfile: userProfile.data(),
+                          likeFunction: like,
+                          dislikeFunction: dislike,
+                        );
+                      } else {
+                        return const Center(child: Text("Nothing new here!"));
+                      }
+                    }),
+              )
             ],
           ),
         ],
       ),
     );
   }
+
+  getNextUserDoc({QuerySnapshot<Map<String, dynamic>>? curUsers}) async {
+    /*
+  Map<String, bool> seenUsers = curUser.doc!["seenUsers"];
+  Set<String> likedUsers = {};
+  Set<String> dislikedUsers = {};
+
+  seenUsers.forEach((key, isLiked) {
+    if (isLiked) {
+      likedUsers.add(key);
+    } else {
+      dislikedUsers.add(key);
+    }
+  });*/
+
+    QuerySnapshot<Map<String, dynamic>> users =
+        curUsers ?? await FirebaseFirestore.instance.collection('users').get();
+
+    Set<String> likedSnapshots = users.docs
+        .where((element) => curUser.doc!["likedUsers"].contains(element.id))
+        .map((e) => e.id)
+        .toSet();
+
+    Set<String> dislikedSnapshots = users.docs
+        .where((element) => curUser.doc!["dislikedUsers"].contains(element.id))
+        .map((e) => e.id)
+        .toSet();
+    Set<String> feedSnapshots = users.docs
+        .map((e) => e.id)
+        .toSet()
+        .difference(likedSnapshots)
+        .difference(dislikedSnapshots)
+        .difference({curProfileId, curUser.id});
+
+    String? userProfileId = feedSnapshots.length > 0
+        ? feedSnapshots.elementAt(Random().nextInt(feedSnapshots.length))
+        : nextProfileId;
+
+    if (feedSnapshots.length == 0) {
+      print("Here 2");
+      isReachedEnd = true;
+    }
+
+    nextProfileId = userProfileId;
+  }
+
+  getFirstUserDoc({QuerySnapshot<Map<String, dynamic>>? curUsers}) async {
+    /*
+  Map<String, bool> seenUsers = curUser.doc!["seenUsers"];
+  Set<String> likedUsers = {};
+  Set<String> dislikedUsers = {};
+
+  seenUsers.forEach((key, isLiked) {
+    if (isLiked) {
+      likedUsers.add(key);
+    } else {
+      dislikedUsers.add(key);
+    }
+  });*/
+
+    QuerySnapshot<Map<String, dynamic>> users =
+        curUsers ?? await FirebaseFirestore.instance.collection('users').get();
+
+    Set<String> likedSnapshots = users.docs
+        .where((element) => curUser.doc!["likedUsers"].contains(element.id))
+        .map((e) => e.id)
+        .toSet();
+
+    Set<String> dislikedSnapshots = users.docs
+        .where((element) => curUser.doc!["dislikedUsers"].contains(element.id))
+        .map((e) => e.id)
+        .toSet();
+    Set<String> feedSnapshots = users.docs
+        .map((e) => e.id)
+        .toSet()
+        .difference(likedSnapshots)
+        .difference(dislikedSnapshots)
+        .difference({curUser.id});
+
+    String? userProfileId = feedSnapshots.length > 0
+        ? feedSnapshots.elementAt(Random().nextInt(feedSnapshots.length))
+        : curProfileId;
+
+    if (feedSnapshots.length == 0) {
+      isReachedEnd = true;
+    }
+    print("Here 2");
+    print(curUser.doc!["lastSeen"]);
+    curProfileId = curUser.doc!["lastSeen"] ?? userProfileId;
+  }
 }
-
-
-
-/*
-ListView.builder(
-        shrinkWrap: true,
-        itemCount: users.length,
-        itemBuilder: (context, index) {
-          return profileCard(ref, true, userProfile: users[index]);
-          return Placeholder(); //Flexible(child: profileCard(ref, true, userProfile: users[index]));
-        });
-*/ 
-/*
-Scaffold(
-      body: Flexible(
-        fit: FlexFit.loose,
-        child: ListView.builder(
-            itemCount: users.length,
-            itemBuilder: (context, index) {
-              return profileCard(ref, true, userProfile: users[index]);
-            }),
-      ),
-      floatingActionButtonLocation: FloatingActionButtonLocation.endTop,
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          print(users.length);
-          return;
-        },
-        child: const Icon(Icons.upload),
-      ),
-    );
-*/
