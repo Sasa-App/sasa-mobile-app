@@ -21,12 +21,13 @@ import 'dart:io';
 
 final firebase = FirebaseAuth.instance;
 
-class CreateAccount extends ConsumerWidget {
-  CreateAccount({super.key});
+class CreateEditAccount extends ConsumerWidget {
+  CreateEditAccount({super.key, this.isEdit = false});
 
   int currentIndex = 0;
 
   bool isVisible = false;
+  bool isEdit;
   bool isDisableGesture = false;
   final CarouselController carouselController = CarouselController();
   bool isSubmmitting = false;
@@ -46,64 +47,95 @@ class CreateAccount extends ConsumerWidget {
       curUser.newGreenFlags = ref.read(greenFlagsProvider.notifier).state;
       curUser.newLifeMovie = ref.read(lifeMovieProvider.notifier).state;
       curUser.newInterestedIn = ref.read(interstedInProvider.notifier).state;
+      curUser.newGender = ref.read(genderProvider.notifier).state;
 
-      try {
-        final UserCredential userCredentials = await firebase.createUserWithEmailAndPassword(
-            email: curUser.newEmail, password: curUser.newPassword);
+      if (isEdit) {
+        curUser.doc!["name"] = curUser.newName;
+        curUser.doc!["age"] = curUser.newAge;
+        curUser.doc!["university"] = curUser.newUniversity;
+        curUser.doc!["nationality"] = curUser.newNationality;
+        curUser.doc!["lookingFor"] = curUser.newLooking4.name.toString();
+        curUser.doc!["idealWeekend"] = curUser.newIdealWeekend;
+        curUser.doc!["greenFlags"] = curUser.newGreenFlags;
+        curUser.doc!["lifeMovie"] = curUser.newLifeMovie;
+        curUser.doc!["interestedIn"] = curUser.newInterestedIn.name.toString();
+        curUser.doc!["gender"] = curUser.newGender.name.toString();
 
-        try {
-          await userCredentials.user?.sendEmailVerification();
-        } catch (e) {
-          print("An error occured while trying to send email        verification");
-          print(e.toString());
-          return false;
+        final storageRef =
+            FirebaseStorage.instance.ref().child('user_profile_photo').child('${curUser.id}.jpg');
+
+        if (!ref.read(profilePhotoProvider.notifier).state.contains("firebasestorage")) {
+          await storageRef.putFile(File(ref.read(profilePhotoProvider.notifier).state));
+          curUser.newProfilePhotoUrl = await storageRef.getDownloadURL();
+          curUser.doc!["profile_photo_url"] = curUser.newProfilePhotoUrl;
+        } else {
+          curUser.doc!["profile_photo_url"] = ref.read(profilePhotoProvider.notifier).state;
         }
 
-        final storageRef = FirebaseStorage.instance
-            .ref()
-            .child('user_profile_photo')
-            .child('${userCredentials.user!.uid}.jpg');
+        await curUser.uploadUserDoc();
+      } else {
+        try {
+          final UserCredential userCredentials = await firebase.createUserWithEmailAndPassword(
+              email: curUser.newEmail, password: curUser.newPassword);
 
-        await storageRef.putFile(File(ref.read(profilePhotoProvider.notifier).state));
-        curUser.newProfilePhotoUrl = await storageRef.getDownloadURL();
+          try {
+            await userCredentials.user?.sendEmailVerification();
+          } catch (e) {
+            print("An error occured while trying to send email        verification");
+            print(e.toString());
+            return false;
+          }
 
-        await FirebaseFirestore.instance.collection('users').doc(userCredentials.user!.uid).set({
-          'name': curUser.newName,
-          'age': curUser.newAge,
-          'nationality': curUser.newNationality,
-          'university': curUser.newUniversity,
-          'email': curUser.newEmail,
-          'profile_photo_url': curUser.newProfilePhotoUrl,
-          'interestedIn': curUser.newInterestedIn.toString(),
-          'lookingFor': curUser.newLooking4.toString(),
-          'idealWeekend': curUser.newIdealWeekend,
-          'greenFlags': curUser.newGreenFlags,
-          'lifeMovie': curUser.newLifeMovie,
-          'likedUsers': [],
-          'dislikedUsers': [],
-          'matches': [],
-          'seenUsers': [],
-          'lastViewed': "",
-        }).onError((error, stackTrace) async {
-          await storageRef.delete();
-        });
-      } on FirebaseAuthException catch (error) {
-        if (error.code == 'email-already-in-use') {}
-        ScaffoldMessenger.of(context).clearSnackBars();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(error.message ?? 'Authentication failed.'),
-          ),
-        );
-        return false;
+          final storageRef = FirebaseStorage.instance
+              .ref()
+              .child('user_profile_photo')
+              .child('${userCredentials.user!.uid}.jpg');
+
+          await storageRef.putFile(File(ref.read(profilePhotoProvider.notifier).state));
+          curUser.newProfilePhotoUrl = await storageRef.getDownloadURL();
+
+          await FirebaseFirestore.instance.collection('users').doc(userCredentials.user!.uid).set({
+            'name': curUser.newName,
+            'age': curUser.newAge,
+            'nationality': curUser.newNationality,
+            'university': curUser.newUniversity,
+            'email': curUser.newEmail,
+            'profile_photo_url': curUser.newProfilePhotoUrl,
+            'interestedIn': curUser.newInterestedIn.name.toString(),
+            'lookingFor': curUser.newLooking4.name.toString(),
+            'idealWeekend': curUser.newIdealWeekend,
+            'greenFlags': curUser.newGreenFlags,
+            'lifeMovie': curUser.newLifeMovie,
+            'likedUsers': [],
+            'dislikedUsers': [],
+            'matches': [],
+            'seenUsers': [],
+            'gender': curUser.newGender.name.toString(),
+            'lastViewed': "",
+          }).onError((error, stackTrace) async {
+            await storageRef.delete();
+          });
+        } on FirebaseAuthException catch (error) {
+          if (error.code == 'email-already-in-use') {}
+          ScaffoldMessenger.of(context).clearSnackBars();
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(error.message ?? 'Authentication failed.'),
+            ),
+          );
+          return false;
+        }
       }
+
       return true;
     }
 
     final screens = [
       CreateYourProfile(
-          curUser.newName, curUser.newAge, curUser.newNationality, curUser.newUniversity),
-      SecurityVerification(curUser.newEmail, curUser.newPassword),
+          curUser.newName, curUser.newAge, curUser.newNationality, curUser.newUniversity, isEdit),
+      if (!isEdit) ...[
+        SecurityVerification(curUser.newEmail, curUser.newPassword),
+      ],
       SelectAProfilePhoto(),
       InterestedIn(),
       LookingFor(),
@@ -119,6 +151,9 @@ class CreateAccount extends ConsumerWidget {
           leading: InkWell(
             onTap: () {
               Navigator.pop(context);
+              if (curUser.doc == null) {
+                curUser.reset(ref);
+              }            
             },
             child: const Icon(
               Icons.arrow_back_ios_new,
@@ -141,17 +176,19 @@ class CreateAccount extends ConsumerWidget {
                       viewportFraction: 1,
                       onPageChanged: (index, reason) {
                         if ((currentIndex == 0 && !form1Key.currentState!.validate()) ||
-                            (currentIndex == 1 && !form2Key.currentState!.validate()) ||
-                            (currentIndex == 2 &&
+                            (currentIndex == 1 && !isEdit && !form2Key.currentState!.validate()) ||
+                            (((isEdit && currentIndex == 1) || (!isEdit && currentIndex == 2)) &&
                                 ref.watch(profilePhotoProvider) ==
                                     "assets/images/default_photo.png") ||
-                            (currentIndex == 3 &&
+                            (((isEdit && currentIndex == 2) || (!isEdit && currentIndex == 3)) &&
                                 ref.watch(interstedInProvider) == Interest.none) ||
-                            (currentIndex == 4 && ref.watch(looking4Provider) == Looking4.none) ||
-                            (currentIndex == 5 && !form5Key.currentState!.validate())) {
+                            (((isEdit && currentIndex == 3) || (!isEdit && currentIndex == 4)) &&
+                                ref.watch(looking4Provider) == Looking4.none) ||
+                            (((isEdit && currentIndex == 4) || (!isEdit && currentIndex == 5)) &&
+                                !form5Key.currentState!.validate())) {
                           carouselController.animateToPage(currentIndex);
 
-                          if (currentIndex == 2) {
+                          if ((isEdit && currentIndex == 1) || (!isEdit && currentIndex == 2)) {
                             ScaffoldMessenger.of(context).clearSnackBars();
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -160,7 +197,7 @@ class CreateAccount extends ConsumerWidget {
                             );
                           }
 
-                          if (currentIndex == 3) {
+                          if ((isEdit && currentIndex == 2) || (!isEdit && currentIndex == 3)) {
                             ScaffoldMessenger.of(context).clearSnackBars();
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
@@ -169,12 +206,18 @@ class CreateAccount extends ConsumerWidget {
                             );
                           }
                           return;
+                        } else {
+                          /*
+                          if (currentIndex == 0 && isEdit) {
+                            carouselController.animateToPage(2);
+                          }*/
                         }
 
                         setState(() {
                           currentIndex = index;
+
                           print(currentIndex);
-                          if (currentIndex == 6) {
+                          if ((isEdit && currentIndex == 5) || (!isEdit && currentIndex == 6)) {
                             isVisible = true;
                           } else {
                             isVisible = false;
@@ -208,16 +251,28 @@ class CreateAccount extends ConsumerWidget {
                 isSubmmitting = true;
                 submit().then((successful) {
                   if (successful) {
-                    curUser.reset(ref);
                     //await FirebaseAuth.instance.currentUser!.sendEmailVerification();
-                    showDialog(
-                      context: context,
-                      builder: (context) => const AlertDialog(
-                        title: Text("One last thing!"),
-                        content: Text(
-                            "We've just sent you an email for verification. Please verify to enable login"),
-                      ),
-                    ).then((value) => Navigator.pop(context));
+                    if (isEdit) {
+                      showDialog(
+                        context: context,
+                        builder: (context) => const AlertDialog(
+                          title: Text("Changes Saved!"),
+                        ),
+                      ).then((value) {
+                        curUser.notifyListeners();
+                        Navigator.of(context).popUntil((route) => route.isFirst);
+                      });
+                    } else {
+                      curUser.reset(ref);
+                      showDialog(
+                        context: context,
+                        builder: (context) => const AlertDialog(
+                          title: Text("One last thing!"),
+                          content: Text(
+                              "We've just sent you an email for verification. Please verify to enable login"),
+                        ),
+                      ).then((value) => Navigator.pop(context));
+                    }
 
                     /*
                     Navigator.push(context, MaterialPageRoute(builder: (context) {

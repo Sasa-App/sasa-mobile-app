@@ -21,10 +21,11 @@ class InterestedIn extends ConsumerWidget {
             //const Text("We'll connect you to other users with similar answers"),
             Expanded(
               child: StatefulBuilder(builder: (context, setState) {
-                Color isMaleColor = ref.read(interstedInProvider.notifier).state == Interest.men
+                Color isMaleColor = ref.read(interstedInProvider.notifier).state == Interest.male
                     ? Colors.red
                     : Colors.transparent;
-                Color isFemaleColor = ref.read(interstedInProvider.notifier).state == Interest.women
+                Color isFemaleColor =
+                    ref.read(interstedInProvider.notifier).state == Interest.female
                     ? Colors.red
                     : Colors.transparent;
                 return Column(
@@ -34,7 +35,7 @@ class InterestedIn extends ConsumerWidget {
                     OutlinedButton(
                       onPressed: () {
                         setState(() {
-                          ref.read(interstedInProvider.notifier).state = Interest.men;
+                          ref.read(interstedInProvider.notifier).state = Interest.male;
                         });
                       },
                       style: ButtonStyle(
@@ -49,7 +50,7 @@ class InterestedIn extends ConsumerWidget {
                     OutlinedButton(
                       onPressed: () {
                         setState(() {
-                          ref.read(interstedInProvider.notifier).state = Interest.women;
+                          ref.read(interstedInProvider.notifier).state = Interest.female;
                         });
                       },
                       style: ButtonStyle(

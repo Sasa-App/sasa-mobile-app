@@ -99,7 +99,7 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
             if (index == 1) {
               _tabController.animateTo(0);
               Navigator.push(context, MaterialPageRoute(builder: (context) {
-                return CreateAccount();
+                return CreateEditAccount();
               }));
             }
           },

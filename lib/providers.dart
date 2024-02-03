@@ -18,6 +18,7 @@ final lifeMovieProvider = StateProvider<String>((ref) => curUser.newLifeMovie);
 final passwordProvider = StateProvider((ref) => curUser.newPassword);
 final looking4Provider = StateProvider((ref) => curUser.newLooking4);
 final interstedInProvider = StateProvider((ref) => curUser.newInterestedIn);
+final genderProvider = StateProvider((ref) => curUser.newGender);
 
 
 final form1Key = GlobalKey<FormState>();

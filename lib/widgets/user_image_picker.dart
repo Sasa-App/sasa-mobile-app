@@ -99,9 +99,11 @@ class UserImagePicker extends ConsumerWidget {
               child: Image(
                 image: ref.watch(initialPhotoProvider) !=
                         "assets/images/default_photo.png"
-                    ? FileImage(File(ref.watch(initialPhotoProvider)))
-                    : AssetImage(ref.watch(initialPhotoProvider))
-                        as ImageProvider,
+                    ? !ref.watch(initialPhotoProvider).contains("firebasestorage")
+                        ? FileImage(File(ref.watch(initialPhotoProvider)))
+                        : Image.network(curUser.doc!["profile_photo_url"]).image
+                    : AssetImage(ref.watch(initialPhotoProvider)),
+                   
                 fit: BoxFit.fitWidth,
               ),
             ),

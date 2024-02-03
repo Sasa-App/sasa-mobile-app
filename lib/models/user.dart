@@ -12,9 +12,11 @@ import 'dart:io';
 
 enum Looking4 { aGoodTime, aLongTime, none }
 
-enum Interest { men, women, none }
+enum Interest { male, female, none }
 
-class CurUser {
+enum Gender { male, female, other }
+
+class CurUser extends ChangeNotifier {
   Map<String, dynamic>? doc;
   String id = "";
   String newName = "";
@@ -28,6 +30,7 @@ class CurUser {
   String newLifeMovie = "";
   Looking4 newLooking4 = Looking4.none;
   Interest newInterestedIn = Interest.none;
+  Gender newGender = Gender.other;
   String newProfilePhotoUrl = "assets/images/default_photo.png";
 
   Future<bool> downloadUserDoc(WidgetRef ref) async {
@@ -38,17 +41,23 @@ class CurUser {
         .get()
         .then((value) => doc = value.data());
 
-    ref.invalidate(nameProvider);
     ref.invalidate(emailProvider);
-    ref.invalidate(nationalityProvider);
-    ref.invalidate(ageProvider);
-    ref.invalidate(universityProvider);
-    ref.invalidate(profilePhotoProvider);
     ref.invalidate(passwordProvider);
-    ref.invalidate(lifeMovieProvider);
-    ref.invalidate(looking4Provider);
-    ref.invalidate(greenFlagsProvider);
-    ref.invalidate(idealWeekendProvider);
+
+    ref.read(nameProvider.notifier).state = curUser.doc!["name"];
+    ref.read(ageProvider.notifier).state = curUser.doc!["age"];
+    ref.read(universityProvider.notifier).state = curUser.doc!["university"];
+    ref.read(nationalityProvider.notifier).state = curUser.doc!["nationality"];
+    ref.read(looking4Provider.notifier).state =
+        Looking4.values.byName(curUser.doc!["lookingFor"] ?? "none");
+    ref.read(idealWeekendProvider.notifier).state = curUser.doc!["idealWeekend"];
+    ref.read(greenFlagsProvider.notifier).state = curUser.doc!["greenFlags"];
+    ref.read(lifeMovieProvider.notifier).state = curUser.doc!["lifeMovie"];
+    ref.read(interstedInProvider.notifier).state =
+        Interest.values.byName(curUser.doc!["interestedIn"] ?? "none");
+    ref.read(profilePhotoProvider.notifier).state = curUser.doc!["profile_photo_url"];
+    ref.read(genderProvider.notifier).state =
+        Gender.values.byName(curUser.doc!["gender"] ?? "other");
     return true;
   }
 
@@ -69,6 +78,9 @@ class CurUser {
     matches = HashSet<String>();
     */
     newLooking4 = Looking4.none;
+    newInterestedIn = Interest.none;
+    newGender = Gender.other;
+
     newProfilePhotoUrl = "assets/images/default_photo.png";
 
     ref.invalidate(nameProvider);
@@ -82,6 +94,8 @@ class CurUser {
     ref.invalidate(looking4Provider);
     ref.invalidate(greenFlagsProvider);
     ref.invalidate(idealWeekendProvider);
+    ref.invalidate(interstedInProvider);
+    ref.invalidate(genderProvider);
   }
 
   Future<double> getCurPage() async {
@@ -118,13 +132,14 @@ class CurUser {
     return false;
   }
 
-  void uploadUserDoc() async {
+  uploadUserDoc() async {
     await FirebaseFirestore.instance
         .collection('users')
         .doc(FirebaseAuth.instance.currentUser!.uid)
         .update(doc!)
         .onError((error, stackTrace) async {
-      print("oH OH Erro hERE");
+      print("oH OH Error hERE");
+      print(error);
     });
   }
 
@@ -134,13 +149,13 @@ class CurUser {
     await FirebaseFirestore.instance.collection('users').doc(matchedUserId).update({
       'matches': FieldValue.arrayUnion([matchRef]),
     }).onError((error, stackTrace) async {
-      print("oH OH Erro hERE");
+      print("oH OH Error hERE");
     });
 
     await FirebaseFirestore.instance.collection('users').doc(curUserId).update({
       'matches': doc!["matches"],
     }).onError((error, stackTrace) async {
-      print("oH OH Erro hERE");
+      print("oH OH Error hERE");
     });
   }
 

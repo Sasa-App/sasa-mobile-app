@@ -6,9 +6,11 @@ import 'package:carousel_slider/carousel_slider.dart';
 
 Widget profileCard(
   WidgetRef ref,
-  bool isDisplayedonFeed,
+  
   double screenHeight,
-    {Map<String, dynamic>? userProfile,
+    {
+  Map<String, dynamic>? userProfile,
+  required bool isDisplayedonFeed,
     void Function()? likeFunction,
   void Function()? dislikeFunction,
 }) {
@@ -54,13 +56,14 @@ Widget profileCard(
                         width: double.infinity,
                         child: Image(
                           image:
-                              userProfile != null
+                              userProfile != null 
                               ? Image.network(userProfile["profile_photo_url"] ??
                                       curUser.doc!["profile_photo_url"])
                                   .image
                               : curUser.newProfilePhotoUrl == "assets/images/default_photo.png"
-                                  ? FileImage(File(ref.watch(profilePhotoProvider)))
-                                      as ImageProvider
+                                  ? !ref.watch(profilePhotoProvider).contains("firebasestorage")
+                                      ? FileImage(File(ref.watch(profilePhotoProvider)))
+                                      : Image.network(curUser.doc!["profile_photo_url"]).image
                                   : AssetImage(
                                       ref.watch(profilePhotoProvider),
                                     ),
@@ -80,7 +83,7 @@ Widget profileCard(
                               radius: 30,
                               backgroundColor: Colors.red,
                               child: Text(
-                                userProfile?["looking4"] == "Looking4.aGoodTime" ? "🔥" : "💗",
+                                userProfile?["lookingFor"] == "aGoodTime" ? "🔥" : "💗",
                                 style: const TextStyle(fontSize: 30),
                               ),
                             ),

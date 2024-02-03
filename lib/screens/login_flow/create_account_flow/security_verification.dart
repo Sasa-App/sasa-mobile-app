@@ -80,7 +80,7 @@ class SecurityVerification extends ConsumerWidget {
                               validator: (value) {
                                 if (value == null ||
                                     value.trim().isEmpty ||
-                                    value.contains(" ") ||
+                                    value.trim().contains(" ") ||
                                     value.contains("@")) {
                                   return "Please enter a valid student email";
                                 }

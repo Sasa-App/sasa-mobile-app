@@ -52,7 +52,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   onTap: () {
                     Navigator.push(context,
                         MaterialPageRoute(builder: (context) {
-                      return CreateAccount();
+                      return CreateEditAccount();
                     }));
                   },
                   child: const Column(
