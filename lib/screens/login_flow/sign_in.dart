@@ -142,7 +142,10 @@ class _SignInScreenState extends State<SignInScreen> with SingleTickerProviderSt
                       styledTextFormField(
                         "Password",
                         suffixIcon: IconButton(
-                          icon: const Icon(Icons.remove_red_eye),
+                          icon: const Icon(
+                            Icons.remove_red_eye,
+                            color: Colors.red,
+                          ),
                           onPressed: () {
                             setState(() {
                               obscureText = !obscureText;

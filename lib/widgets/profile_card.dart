@@ -6,12 +6,10 @@ import 'package:carousel_slider/carousel_slider.dart';
 
 Widget profileCard(
   WidgetRef ref,
-  
-  double screenHeight,
-    {
+  double screenHeight, {
   Map<String, dynamic>? userProfile,
   required bool isDisplayedonFeed,
-    void Function()? likeFunction,
+  void Function()? likeFunction,
   void Function()? dislikeFunction,
 }) {
   final screens = [
@@ -55,12 +53,11 @@ Widget profileCard(
                         height: 1 / 4 * screenHeight,
                         width: double.infinity,
                         child: Image(
-                          image:
-                              userProfile != null 
+                          image: userProfile != null
                               ? Image.network(userProfile["profile_photo_url"] ??
                                       curUser.doc!["profile_photo_url"])
                                   .image
-                              : curUser.newProfilePhotoUrl == "assets/images/default_photo.png"
+                              : ref.watch(profilePhotoProvider) != "assets/images/default_photo.png"
                                   ? !ref.watch(profilePhotoProvider).contains("firebasestorage")
                                       ? FileImage(File(ref.watch(profilePhotoProvider)))
                                       : Image.network(curUser.doc!["profile_photo_url"]).image
@@ -132,15 +129,17 @@ Widget profileCard(
       const SizedBox(
         height: 5,
       ),
-      CarouselSlider(
-        items: screens,
-        options:
-            CarouselOptions(
+      CarouselSlider.builder(
+        itemCount: screens.length,
+        itemBuilder: (context, index, realIndex) {
+          return screens[index];
+        },
+        options: CarouselOptions(
           height: 1 / 4.5 * screenHeight,
           enableInfiniteScroll: true,
           viewportFraction: 1,
         ),
-      ),
+      ), 
     ],
   );
 }

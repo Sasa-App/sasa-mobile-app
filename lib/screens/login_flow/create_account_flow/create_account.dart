@@ -111,7 +111,6 @@ class CreateEditAccount extends ConsumerWidget {
             'matches': [],
             'seenUsers': [],
             'gender': curUser.newGender.name.toString(),
-            'lastViewed': "",
           }).onError((error, stackTrace) async {
             await storageRef.delete();
           });
@@ -153,7 +152,7 @@ class CreateEditAccount extends ConsumerWidget {
               Navigator.pop(context);
               if (curUser.doc == null) {
                 curUser.reset(ref);
-              }            
+              }
             },
             child: const Icon(
               Icons.arrow_back_ios_new,
@@ -175,6 +174,7 @@ class CreateEditAccount extends ConsumerWidget {
                       height: MediaQuery.of(context).size.height * 0.8,
                       viewportFraction: 1,
                       onPageChanged: (index, reason) {
+                        FocusScope.of(context).unfocus();
                         if ((currentIndex == 0 && !form1Key.currentState!.validate()) ||
                             (currentIndex == 1 && !isEdit && !form2Key.currentState!.validate()) ||
                             (((isEdit && currentIndex == 1) || (!isEdit && currentIndex == 2)) &&
@@ -253,15 +253,16 @@ class CreateEditAccount extends ConsumerWidget {
                   if (successful) {
                     //await FirebaseAuth.instance.currentUser!.sendEmailVerification();
                     if (isEdit) {
+                      Navigator.pop(context, "Changes saved!");
+                      /*
                       showDialog(
                         context: context,
                         builder: (context) => const AlertDialog(
                           title: Text("Changes Saved!"),
                         ),
                       ).then((value) {
-                        curUser.notifyListeners();
-                        Navigator.of(context).popUntil((route) => route.isFirst);
-                      });
+                        Navigator.pop(context, "Changes saved!");
+                      });*/
                     } else {
                       curUser.reset(ref);
                       showDialog(

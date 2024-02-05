@@ -20,6 +20,13 @@ final looking4Provider = StateProvider((ref) => curUser.newLooking4);
 final interstedInProvider = StateProvider((ref) => curUser.newInterestedIn);
 final genderProvider = StateProvider((ref) => curUser.newGender);
 
+final promptsProvider = Provider<List>((ref) {
+  final data1 = ref.watch(idealWeekendProvider);
+  final data2 = ref.watch(greenFlagsProvider);
+  final data3 = ref.watch(lifeMovieProvider);
+  return [data1, data2, data3];
+});
+
 
 final form1Key = GlobalKey<FormState>();
 final form2Key = GlobalKey<FormState>();
